@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"time"
 
 	"example.com/booking-event/db"
@@ -12,7 +13,7 @@ type Event struct {
 	Description string    `json:"description"`
 	Location    string    `json:"location"`
 	DateTime    time.Time `json:"dateTime" db:"date_time"`
-	UserID      int       `json:"userId" db:"user_id"`
+	UserID      int64       `json:"userId" db:"user_id"`
 }
 
 func GetAllEvents() ([]Event, error) {
@@ -113,5 +114,44 @@ func (e *Event) Create() error {
 	}
 	id, err := res.LastInsertId()
 	e.ID = id
+	return err
+}
+
+func (e *Event) Update() error {
+	query := `
+	UPDATE events
+	SET title = ?, description = ?, location = ?
+	WHERE id = ?
+	`
+
+	stmt, err := db.DB.Prepare(query)
+
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+	res, err := stmt.Exec(e.Title, e.Description, e.Location, e.ID)
+	rowsAffected, err := res.RowsAffected()
+
+	if rowsAffected == 0 {
+		return errors.New("event not found")
+	}
+
+	return err
+}
+
+func (e *Event) Delete() error {
+	query := `DELETE FROM events WHERE id = ?`
+
+	stmt, err := db.DB.Prepare(query)
+
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(e.ID)
 	return err
 }

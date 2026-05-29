@@ -1,5 +1,9 @@
 package messages
 
 const (
-	CreateEventSuccess = "Event created successfully"
+	CreateEventSuccess  = "Event created successfully"
+	UpdateEventSuccess  = "Event updated successfully"
+	DeletesEventSuccess = "Event deleted successfully"
+	Signup              = "user registered successfully"
+	Login              = "user logged in successfully"
 )
