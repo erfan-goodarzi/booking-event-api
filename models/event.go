@@ -1,26 +1,62 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"example.com/booking-event/db"
+)
 
 type Event struct {
-	ID          int
-	Title       string
-	Description string
-	Location    string
-	DateTime    time.Time
-	UserID      int
+	ID          int64     `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Location    string    `json:"location"`
+	DateTime    time.Time `json:"dateTime"`
+	UserID      int       `json:"userId"`
 }
 
-var events = []Event{}
+func GetAllEvents() ([]Event, error) {
+	var events []Event
+	query := `SELECT * FROM events`
+	rows, err := db.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-func (e *Event) Save() {
-	events = append(events, *e)
+	for rows.Next() {
+		var event Event
+		err := rows.Scan(&event.ID, &event.Title, &event.Description, &event.Location, &event.DateTime, &event.UserID)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, event)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return events, nil
 }
 
-func GetAllEvents() []Event {
-	return events
-}
+func (e *Event) Create() error {
+	query := `
+	INSERT INTO events(title, description, location, dateTime, user_id)
+	VALUES (?,?,?,?,?)`
 
-func (e Event) Create() {
+	stmt, err := db.DB.Prepare(query)
 
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	res, err := stmt.Exec(e.Title, e.Description, e.Location, e.DateTime, e.UserID)
+
+	if err != nil {
+		return err
+	}
+	id, err := res.LastInsertId()
+	e.ID = id
+	return err
 }

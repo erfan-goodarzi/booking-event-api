@@ -9,10 +9,11 @@ import (
 var DB *sql.DB
 
 func InitDB() {
-	DB, err := sql.Open("sqlite3", "api.db")
+	var err error
+	DB, err = sql.Open("sqlite3", "./api.db")
 
 	if err != nil {
-		panic("Could not connect to DB.")
+		panic("Could not connect to DB." + err.Error())
 	}
 
 	DB.SetMaxOpenConns(10)
@@ -22,19 +23,19 @@ func InitDB() {
 
 func createTables() {
 	createEventsTables := `
-		CREATE TABLE IF NOT EXIST events (
+		CREATE TABLE IF NOT EXISTS events (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			name TEXT NOT NULL,
 			description TEXT NOT NULL,
 			location TEXT NOT NULL,
 			dateTime DATETIME NOT NULL,
-			userId INTEGER,
+			userId INTEGER
 		)
 	`
 
 	_, err := DB.Exec(createEventsTables)
 
 	if err != nil {
-		panic("Could not create event table")
+		panic("Could not create event table: " + err.Error())
 	}
 }
