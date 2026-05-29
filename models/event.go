@@ -11,22 +11,44 @@ type Event struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Location    string    `json:"location"`
-	DateTime    time.Time `json:"dateTime"`
-	UserID      int       `json:"userId"`
+	DateTime    time.Time `json:"dateTime" db:"date_time"`
+	UserID      int       `json:"userId" db:"user_id"`
 }
 
 func GetAllEvents() ([]Event, error) {
 	var events []Event
-	query := `SELECT * FROM events`
+
+	query := `
+	SELECT
+		id,
+		title,
+		description,
+		location,
+		date_time,
+		user_id
+	FROM events
+	`
+
 	rows, err := db.DB.Query(query)
+
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	for rows.Next() {
 		var event Event
-		err := rows.Scan(&event.ID, &event.Title, &event.Description, &event.Location, &event.DateTime, &event.UserID)
+
+		err := rows.Scan(
+			&event.ID,
+			&event.Title,
+			&event.Description,
+			&event.Location,
+			&event.DateTime,
+			&event.UserID,
+		)
+
 		if err != nil {
 			return nil, err
 		}
@@ -40,9 +62,42 @@ func GetAllEvents() ([]Event, error) {
 	return events, nil
 }
 
+func GetEvent(id int64) (*Event, error) {
+	var event Event
+
+	query := `
+	SELECT
+		id,
+		title,
+		description,
+		location,
+		date_time,
+		user_id
+	FROM events
+	WHERE id = ?
+	`
+
+	row := db.DB.QueryRow(query, id)
+
+	err := row.Scan(
+		&event.ID,
+		&event.Title,
+		&event.Description,
+		&event.Location,
+		&event.DateTime,
+		&event.UserID,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &event, nil
+}
+
 func (e *Event) Create() error {
 	query := `
-	INSERT INTO events(title, description, location, dateTime, user_id)
+	INSERT INTO events(title, description, location, date_time, user_id)
 	VALUES (?,?,?,?,?)`
 
 	stmt, err := db.DB.Prepare(query)
