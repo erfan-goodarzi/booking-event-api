@@ -1,4 +1,4 @@
-module example.com/booking-event
+module github.com/erfan-goodarzi/booking-event-api
 
 go 1.26.3
 

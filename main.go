@@ -1,8 +1,8 @@
 package main
 
 import (
-	"example.com/booking-event/db"
-	"example.com/booking-event/routes"
+	"github.com/erfan-goodarzi/booking-event-api/db"
+	"github.com/erfan-goodarzi/booking-event-api/routes"
 	"github.com/gin-gonic/gin"
 )
 

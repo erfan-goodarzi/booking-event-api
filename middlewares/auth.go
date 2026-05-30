@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"example.com/booking-event/models"
-	"example.com/booking-event/utils"
+	"github.com/erfan-goodarzi/booking-event-api/models"
+	"github.com/erfan-goodarzi/booking-event-api/utils"
 	"github.com/gin-gonic/gin"
 )
 

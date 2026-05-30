@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"example.com/booking-event/db"
+	"github.com/erfan-goodarzi/booking-event-api/db"
 )
 
 type Event struct {
@@ -13,7 +13,7 @@ type Event struct {
 	Description string    `json:"description"`
 	Location    string    `json:"location"`
 	DateTime    time.Time `json:"dateTime" db:"date_time"`
-	UserID      int64       `json:"userId" db:"user_id"`
+	UserID      int64     `json:"userId" db:"user_id"`
 }
 
 func GetAllEvents() ([]Event, error) {
