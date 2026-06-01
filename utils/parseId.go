@@ -1,15 +1,24 @@
 package utils
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 func ParseID(c *gin.Context) (int64, error) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	idParams := c.Param("id")
+
+	if idParams == "" {
+		return 0, errors.New("Invalid id")
+	}
+
+	id, err := strconv.ParseInt(idParams, 10, 64)
+
 	if err != nil {
 		return 0, err
 	}
+
 	return id, nil
 }
