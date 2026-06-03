@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/erfan-goodarzi/booking-event-api/internals/models"
+	"github.com/erfan-goodarzi/booking-event-api/internals/api"
 	"github.com/erfan-goodarzi/booking-event-api/utils"
 	"github.com/gin-gonic/gin"
 )
 
-var response models.APIResponse
+var response api.APIResponse
 
 func Authenticate(c *gin.Context) {
 	auth := c.GetHeader("Authorization")

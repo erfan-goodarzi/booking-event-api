@@ -1,4 +1,4 @@
-package models
+package store
 
 import (
 	"database/sql"
@@ -33,15 +33,15 @@ type EventStore interface {
 	ApplyPatch(e *Event, p PatchEventRequest)
 }
 
-type PostgresEventModel struct {
+type PostgresEventStore struct {
 	db *sql.DB
 }
 
-func NewPostgresEventStore(db *sql.DB) *PostgresEventModel {
-	return &PostgresEventModel{db: db}
+func NewPostgresEventStore(db *sql.DB) *PostgresEventStore {
+	return &PostgresEventStore{db: db}
 }
 
-func (pg *PostgresEventModel) GetAllEvents() ([]Event, error) {
+func (pg *PostgresEventStore) GetAllEvents() ([]Event, error) {
 	var events []Event
 
 	query := `
@@ -92,7 +92,7 @@ func (pg *PostgresEventModel) GetAllEvents() ([]Event, error) {
 	return events, nil
 }
 
-func (pg *PostgresEventModel) GetEvent(id int64) (*Event, error) {
+func (pg *PostgresEventStore) GetEvent(id int64) (*Event, error) {
 	var event Event
 
 	query := `
@@ -129,7 +129,7 @@ func (pg *PostgresEventModel) GetEvent(id int64) (*Event, error) {
 	return &event, nil
 }
 
-func (pg *PostgresEventModel) CreateEvent(e *Event) (*Event, error) {
+func (pg *PostgresEventStore) CreateEvent(e *Event) (*Event, error) {
 	tx, err := pg.db.Begin()
 
 	if err != nil {
@@ -156,7 +156,7 @@ func (pg *PostgresEventModel) CreateEvent(e *Event) (*Event, error) {
 	return e, nil
 }
 
-func (pg *PostgresEventModel) UpdateEvent(e *Event) (*Event, error) {
+func (pg *PostgresEventStore) UpdateEvent(e *Event) (*Event, error) {
 	tx, err := pg.db.Begin()
 
 	if err != nil {
@@ -200,7 +200,7 @@ func (pg *PostgresEventModel) UpdateEvent(e *Event) (*Event, error) {
 	return e, nil
 }
 
-func (pg *PostgresEventModel) ApplyPatch(e *Event, p PatchEventRequest) {
+func (pg *PostgresEventStore) ApplyPatch(e *Event, p PatchEventRequest) {
 	if p.Title != nil {
 		e.Title = *p.Title
 	}
@@ -215,7 +215,7 @@ func (pg *PostgresEventModel) ApplyPatch(e *Event, p PatchEventRequest) {
 	}
 }
 
-func (pg *PostgresEventModel) DeleteEvent(eventId int64) error {
+func (pg *PostgresEventStore) DeleteEvent(eventId int64) error {
 	query := `DELETE FROM events WHERE id = $1`
 
 	stmt, err := pg.db.Prepare(query)
@@ -241,7 +241,7 @@ func (pg *PostgresEventModel) DeleteEvent(eventId int64) error {
 	return nil
 }
 
-func (pg *PostgresEventModel) GetEventOwner(eventId int64) (int, error) {
+func (pg *PostgresEventStore) GetEventOwner(eventId int64) (int, error) {
 	var userID int
 
 	query := `

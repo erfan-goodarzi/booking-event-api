@@ -8,7 +8,7 @@ import (
 
 	"github.com/erfan-goodarzi/booking-event-api/internals/api"
 	"github.com/erfan-goodarzi/booking-event-api/internals/db"
-	"github.com/erfan-goodarzi/booking-event-api/internals/models"
+	"github.com/erfan-goodarzi/booking-event-api/internals/store"
 	"github.com/erfan-goodarzi/booking-event-api/migrations"
 	"github.com/gin-gonic/gin"
 )
@@ -32,12 +32,13 @@ func NewApplication() (*Application, error) {
 	}
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+	apiResponse := &api.APIResponse{}
 
-	eventStore := models.NewPostgresEventStore(pgDB)
-	userStore := models.NewPostgresUserStore(pgDB)
+	eventStore := store.NewPostgresEventStore(pgDB)
+	userStore := store.NewPostgresUserStore(pgDB)
 
-	eventHandler := api.NewEventHandler(eventStore, logger)
-	userHandler := api.NewUserHandler(userStore, logger)
+	eventHandler := api.NewEventHandler(eventStore, logger, apiResponse)
+	userHandler := api.NewUserHandler(userStore, logger, apiResponse)
 
 	app := &Application{
 		Logger:       logger,

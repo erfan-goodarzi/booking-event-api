@@ -1,4 +1,4 @@
-package models
+package store
 
 import (
 	"database/sql"
@@ -19,15 +19,15 @@ type UserStore interface {
 	ValidateCredential(u *User) error
 }
 
-type PostgresUserModel struct {
+type PostgresUserStore struct {
 	db *sql.DB
 }
 
-func NewPostgresUserStore(db *sql.DB) *PostgresUserModel {
-	return &PostgresUserModel{db: db}
+func NewPostgresUserStore(db *sql.DB) *PostgresUserStore {
+	return &PostgresUserStore{db: db}
 }
 
-func (pg *PostgresUserModel) Create(u *User) error {
+func (pg *PostgresUserStore) Create(u *User) error {
 	tx, err := pg.db.Begin()
 
 	if err != nil {
@@ -60,7 +60,7 @@ func (pg *PostgresUserModel) Create(u *User) error {
 	return nil
 }
 
-func (pg *PostgresUserModel) ValidateCredential(u *User) error {
+func (pg *PostgresUserStore) ValidateCredential(u *User) error {
 	query := "SELECT id, password FROM users WHERE email = $1"
 
 	row := pg.db.QueryRow(query, u.Email)
