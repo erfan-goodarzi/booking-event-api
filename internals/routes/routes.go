@@ -12,15 +12,15 @@ func RegisterRoutes(app *app.Application) *gin.Engine {
 	protectedRoute.Use(middlewares.Authenticate)
 
 	// EVENTS
-	protectedRoute.POST("/events", app.EventHandler.CreateEvents)
-	protectedRoute.PUT("/events/:id", app.EventHandler.UpdateEvent)
-	protectedRoute.DELETE("/events/:id", app.EventHandler.DeleteEvent)
-	r.GET("/events", app.EventHandler.GetEvents)
-	r.GET("/events/:id", app.EventHandler.GetEvent)
+	protectedRoute.POST("/events", app.Handlers.Event.CreateEvents)
+	protectedRoute.PUT("/events/:id", app.Handlers.Event.UpdateEvent)
+	protectedRoute.DELETE("/events/:id", app.Handlers.Event.DeleteEvent)
+	r.GET("/events", app.Handlers.Event.GetEvents)
+	r.GET("/events/:id", app.Handlers.Event.GetEvent)
 
 	// Auth
-	r.POST("/signup", app.UserHandler.Signup)
-	r.POST("/login", app.UserHandler.Login)
+	r.POST("/signup", app.Handlers.User.Signup)
+	r.POST("/login", app.Handlers.User.Login)
 
 	r.GET("/health", app.HealthCheck)
 

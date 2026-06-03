@@ -13,11 +13,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type Handler struct {
+	Event       *api.EventHandler
+	User *api.UserHandler
+}
+
 type Application struct {
-	Logger       *log.Logger
-	EventHandler *api.EventHandler
-	UserHandler  *api.UserHandler
-	DB           *sql.DB
+	Logger   *log.Logger
+	Handlers *Handler
+	DB       *sql.DB
 }
 
 func NewApplication() (*Application, error) {
@@ -40,11 +44,15 @@ func NewApplication() (*Application, error) {
 	eventHandler := api.NewEventHandler(eventStore, logger, apiResponse)
 	userHandler := api.NewUserHandler(userStore, logger, apiResponse)
 
+	handlers := &Handler{
+		Event:       eventHandler,
+		User: userHandler,
+	}
+
 	app := &Application{
-		Logger:       logger,
-		EventHandler: eventHandler,
-		UserHandler:  userHandler,
-		DB:           pgDB,
+		Logger:   logger,
+		Handlers: handlers,
+		DB:       pgDB,
 	}
 
 	return app, nil
