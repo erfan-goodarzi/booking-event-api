@@ -6,6 +6,7 @@ tmp_dir = "tmp"
   bin = "./tmp/main"
   exclude_dir = ["tmp", "vendor"]
   include_ext = ["go"]
+  pre_cmd = ["make migrate-up"]
 
 [screen]
   clear_on_rebuild = true

@@ -36,7 +36,7 @@ func (handler *UserHandler) Signup(c *gin.Context) {
 	err = handler.user.Create(&user)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		handler.response.RespondError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 

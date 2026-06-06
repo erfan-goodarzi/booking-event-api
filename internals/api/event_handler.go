@@ -45,7 +45,7 @@ func (handler *EventHandler) GetEvent(c *gin.Context) {
 		return
 	}
 
-	event, err := handler.eventStore.GetEvent(id)
+	event, err := handler.eventStore.GetEvent(*id)
 
 	if err != nil {
 		handler.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
@@ -64,12 +64,12 @@ func (handler *EventHandler) CreateEvents(c *gin.Context) {
 		return
 	}
 
-	id := c.GetInt64("userId")
+	id := c.GetString("userId")
 	event.UserID = id
 
 	createdEvent, err := handler.eventStore.CreateEvent(&event)
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		handler.response.RespondError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -78,14 +78,14 @@ func (handler *EventHandler) CreateEvents(c *gin.Context) {
 
 func (handler *EventHandler) UpdateEvent(c *gin.Context) {
 	id, err := apiUtils.ParseID(c)
-	currentUserId := c.GetInt64("userId")
+	currentUserId := c.GetString("userId")
 
 	if err != nil {
 		handler.response.RespondError(c, http.StatusNotFound, "ID_NOT_FOUND")
 		return
 	}
 
-	existingEvent, err := handler.eventStore.GetEvent(id)
+	existingEvent, err := handler.eventStore.GetEvent(*id)
 
 	if err != nil {
 		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
@@ -106,14 +106,14 @@ func (handler *EventHandler) UpdateEvent(c *gin.Context) {
 		return
 	}
 
-	eventOwner, err := handler.eventStore.GetEventOwner(id)
+	eventOwner, err := handler.eventStore.GetEventOwner(*id)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		handler.response.RespondError(c, http.StatusUnprocessableEntity, "EVENT_NOT_EXIST")
 		return
 	}
 
-	if eventOwner != int(currentUserId) {
+	if eventOwner != &currentUserId {
 		handler.response.RespondError(c, http.StatusForbidden, "ACCESS_DENIED")
 		return
 	}
@@ -132,26 +132,26 @@ func (handler *EventHandler) UpdateEvent(c *gin.Context) {
 
 func (handler *EventHandler) DeleteEvent(c *gin.Context) {
 	id, err := apiUtils.ParseID(c)
-	currentUserId := c.GetInt64("userId")
+	currentUserId := c.GetString("userId")
 
 	if err != nil {
 		handler.response.RespondError(c, http.StatusNotFound, "ID_NOT_FOUND")
 		return
 	}
 
-	eventOwner, err := handler.eventStore.GetEventOwner(id)
+	eventOwner, err := handler.eventStore.GetEventOwner(*id)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		handler.response.RespondError(c, http.StatusUnprocessableEntity, "EVENT_NOT_EXIST")
 		return
 	}
 
-	if eventOwner != int(currentUserId) {
+	if eventOwner != &currentUserId {
 		handler.response.RespondError(c, http.StatusForbidden, "ACCESS_DENIED")
 		return
 	}
 
-	err = handler.eventStore.DeleteEvent(id)
+	err = handler.eventStore.DeleteEvent(*id)
 
 	if err != nil {
 		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")

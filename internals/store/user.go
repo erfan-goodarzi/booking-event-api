@@ -8,10 +8,10 @@ import (
 )
 
 type User struct {
-	ID       int64
-	Username string `binding:"omitempty"`
-	Email    string `binding:"required"`
-	Password string `binding:"required" json:"_"`
+	ID       string
+	Username string `binding:"omitempty" json:"username"`
+	Email    string `binding:"required" json:"email"`
+	Password string `binding:"required" json:"password"`
 }
 
 type UserStore interface {

@@ -6,12 +6,12 @@ import (
 )
 
 type Event struct {
-	ID          int64     `json:"id"`
+	ID          string    `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Location    string    `json:"location"`
 	DateTime    time.Time `json:"dateTime" db:"date_time"`
-	UserID      int64     `json:"userId" db:"user_id"`
+	UserID      string    `json:"userId" db:"user_id"`
 	CreatedAt   time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
 }
@@ -25,11 +25,11 @@ type PatchEventRequest struct {
 
 type EventStore interface {
 	GetAllEvents() ([]Event, error)
-	GetEvent(id int64) (*Event, error)
+	GetEvent(id string) (*Event, error)
 	CreateEvent(*Event) (*Event, error)
 	UpdateEvent(*Event) (*Event, error)
-	DeleteEvent(id int64) error
-	GetEventOwner(id int64) (int, error)
+	DeleteEvent(id string) error
+	GetEventOwner(eventId string) (*string, error)
 	ApplyPatch(e *Event, p PatchEventRequest)
 }
 
@@ -92,7 +92,7 @@ func (pg *PostgresEventStore) GetAllEvents() ([]Event, error) {
 	return events, nil
 }
 
-func (pg *PostgresEventStore) GetEvent(id int64) (*Event, error) {
+func (pg *PostgresEventStore) GetEvent(id string) (*Event, error) {
 	var event Event
 
 	query := `
@@ -215,7 +215,7 @@ func (pg *PostgresEventStore) ApplyPatch(e *Event, p PatchEventRequest) {
 	}
 }
 
-func (pg *PostgresEventStore) DeleteEvent(eventId int64) error {
+func (pg *PostgresEventStore) DeleteEvent(id string) error {
 	query := `DELETE FROM events WHERE id = $1`
 
 	stmt, err := pg.db.Prepare(query)
@@ -226,7 +226,7 @@ func (pg *PostgresEventStore) DeleteEvent(eventId int64) error {
 
 	defer stmt.Close()
 
-	res, err := stmt.Exec(eventId)
+	res, err := stmt.Exec(id)
 
 	rowsAffected, err := res.RowsAffected()
 
@@ -241,8 +241,8 @@ func (pg *PostgresEventStore) DeleteEvent(eventId int64) error {
 	return nil
 }
 
-func (pg *PostgresEventStore) GetEventOwner(eventId int64) (int, error) {
-	var userID int
+func (pg *PostgresEventStore) GetEventOwner(eventId string) (*string, error) {
+	var userID string
 
 	query := `
   SELECT user_id
@@ -252,8 +252,8 @@ func (pg *PostgresEventStore) GetEventOwner(eventId int64) (int, error) {
 
 	err := pg.db.QueryRow(query, eventId).Scan(&userID)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return userID, nil
+	return &userID, nil
 }
