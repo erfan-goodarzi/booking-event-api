@@ -14,8 +14,8 @@ import (
 )
 
 type Handler struct {
-	Event       *api.EventHandler
-	User *api.UserHandler
+	Event *api.EventHandler
+	User  *api.UserHandler
 }
 
 type Application struct {
@@ -45,8 +45,8 @@ func NewApplication() (*Application, error) {
 	userHandler := api.NewUserHandler(userStore, logger, apiResponse)
 
 	handlers := &Handler{
-		Event:       eventHandler,
-		User: userHandler,
+		Event: eventHandler,
+		User:  userHandler,
 	}
 
 	app := &Application{

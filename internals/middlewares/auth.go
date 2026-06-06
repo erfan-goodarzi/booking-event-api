@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/erfan-goodarzi/booking-event-api/apiUtils"
 	"github.com/erfan-goodarzi/booking-event-api/internals/api"
-	"github.com/erfan-goodarzi/booking-event-api/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,7 +20,7 @@ func Authenticate(c *gin.Context) {
 		return
 	}
 
-	id, err := utils.VerifyToken(token)
+	id, err := apiUtils.VerifyToken(token)
 
 	if err != nil {
 		response.RespondAuthError(c, http.StatusUnauthorized, "UNAUTHORIZED")

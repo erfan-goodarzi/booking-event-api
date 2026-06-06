@@ -1,4 +1,4 @@
-package utils
+package apiUtils
 
 import (
 	"errors"
@@ -22,5 +22,5 @@ func CheckPassword(hashedPassword, password string) bool {
 		}
 	}
 
-	return err == nil 
+	return err == nil
 }

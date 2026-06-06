@@ -4,14 +4,14 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/erfan-goodarzi/booking-event-api/utils"
+	"github.com/erfan-goodarzi/booking-event-api/apiUtils"
 )
 
 type User struct {
 	ID       int64
 	Username string `binding:"omitempty"`
 	Email    string `binding:"required"`
-	Password string `binding:"required"`
+	Password string `binding:"required" json:"_"`
 }
 
 type UserStore interface {
@@ -41,7 +41,7 @@ func (pg *PostgresUserStore) Create(u *User) error {
 	RETURNING id
 	`
 
-	hashesPassword, err := utils.HashPassword(u.Password)
+	hashesPassword, err := apiUtils.HashPassword(u.Password)
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (pg *PostgresUserStore) ValidateCredential(u *User) error {
 		return errors.New("Invalid Credential")
 	}
 
-	isValidPassword := utils.CheckPassword(password, u.Password)
+	isValidPassword := apiUtils.CheckPassword(password, u.Password)
 
 	if !isValidPassword {
 		return errors.New("Invalid Credential")

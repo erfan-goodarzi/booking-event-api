@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/erfan-goodarzi/booking-event-api/apiUtils"
 	"github.com/erfan-goodarzi/booking-event-api/internals/messages"
 	"github.com/erfan-goodarzi/booking-event-api/internals/store"
-	"github.com/erfan-goodarzi/booking-event-api/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,7 +36,7 @@ func (handler *UserHandler) Signup(c *gin.Context) {
 	err = handler.user.Create(&user)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, err.Error())
+		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 
@@ -59,7 +59,7 @@ func (handler *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateToken(user.Email, user.ID)
+	token, err := apiUtils.GenerateToken(user.Email, user.ID)
 
 	if err != nil {
 		handler.response.RespondError(c, http.StatusNonAuthoritativeInfo, "UNAUTHORIZED")

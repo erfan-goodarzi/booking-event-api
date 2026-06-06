@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/erfan-goodarzi/booking-event-api/apiUtils"
 	"github.com/erfan-goodarzi/booking-event-api/internals/messages"
 	"github.com/erfan-goodarzi/booking-event-api/internals/store"
-	"github.com/erfan-goodarzi/booking-event-api/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,7 +30,7 @@ func (handler *EventHandler) GetEvents(c *gin.Context) {
 	events, err := handler.eventStore.GetAllEvents()
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, err.Error())
+		handler.response.RespondError(c, http.StatusInternalServerError, "EVENT_NOT_FOUND")
 		return
 	}
 
@@ -38,7 +38,7 @@ func (handler *EventHandler) GetEvents(c *gin.Context) {
 }
 
 func (handler *EventHandler) GetEvent(c *gin.Context) {
-	id, err := utils.ParseID(c)
+	id, err := apiUtils.ParseID(c)
 
 	if err != nil {
 		handler.response.RespondError(c, http.StatusBadRequest, "ID_NOT_FOUND")
@@ -48,7 +48,7 @@ func (handler *EventHandler) GetEvent(c *gin.Context) {
 	event, err := handler.eventStore.GetEvent(id)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusNotFound, err.Error())
+		handler.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
 		return
 	}
 
@@ -77,7 +77,7 @@ func (handler *EventHandler) CreateEvents(c *gin.Context) {
 }
 
 func (handler *EventHandler) UpdateEvent(c *gin.Context) {
-	id, err := utils.ParseID(c)
+	id, err := apiUtils.ParseID(c)
 	currentUserId := c.GetInt64("userId")
 
 	if err != nil {
@@ -131,7 +131,7 @@ func (handler *EventHandler) UpdateEvent(c *gin.Context) {
 }
 
 func (handler *EventHandler) DeleteEvent(c *gin.Context) {
-	id, err := utils.ParseID(c)
+	id, err := apiUtils.ParseID(c)
 	currentUserId := c.GetInt64("userId")
 
 	if err != nil {
