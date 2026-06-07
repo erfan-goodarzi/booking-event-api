@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/erfan-goodarzi/booking-event-api/apiUtils"
+	"github.com/jackc/pgconn"
 )
 
 type User struct {
@@ -49,6 +50,16 @@ func (pg *PostgresUserStore) Create(u *User) error {
 	err = tx.QueryRow(query, u.Email, hashesPassword, u.Username).Scan(&u.ID)
 
 	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			if pgErr.Code == "23505" {
+				switch pgErr.ConstraintName {
+				case "users_email_key":
+					return errors.New("EMAIL_ALREADY_EXISTS")
+				case "users_username_key":
+					return errors.New("USERNAME_ALREADY_EXISTS")
+				}
+			}
+		}
 		return err
 	}
 
@@ -69,13 +80,13 @@ func (pg *PostgresUserStore) ValidateCredential(u *User) error {
 	err := row.Scan(&u.ID, &password)
 
 	if err != nil {
-		return errors.New("Invalid Credential")
+		return errors.New("INVALID_CREDENTIAL")
 	}
 
 	isValidPassword := apiUtils.CheckPassword(password, u.Password)
 
 	if !isValidPassword {
-		return errors.New("Invalid Credential")
+		return errors.New("INVALID_CREDENTIAL")
 	}
 	return nil
 }

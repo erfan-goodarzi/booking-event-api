@@ -166,30 +166,18 @@ func (pg *PostgresEventStore) UpdateEvent(e *Event) (*Event, error) {
 
 	query := `
 	UPDATE events
-	SET title = $1, description = $2, location = $3
+	SET title = $1, description = $2, location = $3, updated_at = NOW()
 	WHERE id = $4
+	RETURNING updated_at
 	`
 
-	stmt, err := tx.Prepare(query)
+	err = tx.QueryRow(query, e.Title, e.Description, e.Location, e.ID).Scan(&e.UpdatedAt)
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, sql.ErrNoRows
+		}
 		return nil, err
-	}
-
-	res, err := stmt.Exec(e.Title, e.Description, e.Location, e.ID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	rowsAffected, err := res.RowsAffected()
-
-	if err != nil {
-		return nil, err
-	}
-
-	if rowsAffected == 0 {
-		return nil, sql.ErrNoRows
 	}
 
 	err = tx.Commit()

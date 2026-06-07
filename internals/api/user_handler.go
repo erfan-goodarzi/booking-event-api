@@ -36,7 +36,14 @@ func (handler *UserHandler) Signup(c *gin.Context) {
 	err = handler.user.Create(&user)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, err.Error())
+		switch err.Error() {
+		case "EMAIL_ALREADY_EXISTS":
+			handler.response.RespondError(c, http.StatusConflict, "EMAIL_ALREADY_EXISTS")
+		case "USERNAME_ALREADY_EXISTS":
+			handler.response.RespondError(c, http.StatusConflict, "USERNAME_ALREADY_EXISTS")
+		default:
+			handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		}
 		return
 	}
 
@@ -55,7 +62,11 @@ func (handler *UserHandler) Login(c *gin.Context) {
 	err = handler.user.ValidateCredential(&user)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusNonAuthoritativeInfo, "UNAUTHORIZED")
+		if err.Error() == "INVALID_CREDENTIAL" {
+			handler.response.RespondError(c, http.StatusNonAuthoritativeInfo, "UNAUTHORIZED")
+			return
+		}
+		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 

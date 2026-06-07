@@ -88,7 +88,7 @@ func (handler *EventHandler) UpdateEvent(c *gin.Context) {
 	existingEvent, err := handler.eventStore.GetEvent(*id)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		handler.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
 		return
 	}
 
@@ -113,7 +113,7 @@ func (handler *EventHandler) UpdateEvent(c *gin.Context) {
 		return
 	}
 
-	if eventOwner != &currentUserId {
+	if *eventOwner != currentUserId {
 		handler.response.RespondError(c, http.StatusForbidden, "ACCESS_DENIED")
 		return
 	}
@@ -146,7 +146,7 @@ func (handler *EventHandler) DeleteEvent(c *gin.Context) {
 		return
 	}
 
-	if eventOwner != &currentUserId {
+	if *eventOwner != currentUserId {
 		handler.response.RespondError(c, http.StatusForbidden, "ACCESS_DENIED")
 		return
 	}
