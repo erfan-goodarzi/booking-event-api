@@ -7,6 +7,7 @@ import (
 	"github.com/erfan-goodarzi/booking-event-api/apiUtils"
 	"github.com/erfan-goodarzi/booking-event-api/internals/messages"
 	"github.com/erfan-goodarzi/booking-event-api/internals/store"
+	"github.com/erfan-goodarzi/booking-event-api/pkg/validation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,6 +34,13 @@ func (handler *UserHandler) Signup(c *gin.Context) {
 		return
 	}
 
+	err = validation.Validate.Struct(user)
+
+	if err != nil {
+		handler.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
+		return
+	}
+
 	err = handler.user.Create(&user)
 
 	if err != nil {
@@ -56,6 +64,13 @@ func (handler *UserHandler) Login(c *gin.Context) {
 
 	if err != nil {
 		handler.response.RespondError(c, http.StatusUnprocessableEntity, "PAYLOAD_NOT_VALID")
+		return
+	}
+
+	err = validation.Validate.Struct(user)
+
+	if err != nil {
+		handler.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
 		return
 	}
 

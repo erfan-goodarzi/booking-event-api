@@ -9,6 +9,7 @@ import (
 	"github.com/erfan-goodarzi/booking-event-api/apiUtils"
 	"github.com/erfan-goodarzi/booking-event-api/internals/messages"
 	"github.com/erfan-goodarzi/booking-event-api/internals/store"
+	"github.com/erfan-goodarzi/booking-event-api/pkg/validation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -45,7 +46,7 @@ func (handler *EventHandler) GetEvent(c *gin.Context) {
 		return
 	}
 
-	event, err := handler.eventStore.GetEvent(*id)
+	event, err := handler.eventStore.GetEvent(id)
 
 	if err != nil {
 		handler.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
@@ -56,12 +57,27 @@ func (handler *EventHandler) GetEvent(c *gin.Context) {
 }
 
 func (handler *EventHandler) CreateEvents(c *gin.Context) {
-	var event store.Event
-	err := c.ShouldBindJSON(&event)
+	var payload store.CreateEventRequest
+	err := c.ShouldBindJSON(&payload)
 
 	if err != nil {
 		handler.response.RespondError(c, http.StatusUnprocessableEntity, "PAYLOAD_NOT_VALID")
 		return
+	}
+
+	err = validation.Validate.Struct(payload)
+
+	if err != nil {
+		handler.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
+		return
+	}
+
+	event := store.Event{
+		Title:       payload.Title,
+		Description: payload.Description,
+		Location:    payload.Location,
+		DateTime:    payload.DateTime,
+		UserID:      c.GetString("userId"),
 	}
 
 	id := c.GetString("userId")
@@ -85,7 +101,7 @@ func (handler *EventHandler) UpdateEvent(c *gin.Context) {
 		return
 	}
 
-	existingEvent, err := handler.eventStore.GetEvent(*id)
+	existingEvent, err := handler.eventStore.GetEvent(id)
 
 	if err != nil {
 		handler.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
@@ -106,19 +122,26 @@ func (handler *EventHandler) UpdateEvent(c *gin.Context) {
 		return
 	}
 
-	eventOwner, err := handler.eventStore.GetEventOwner(*id)
+	err = validation.Validate.Struct(partialEvent)
+
+	if err != nil {
+		handler.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
+		return
+	}
+
+	eventOwner, err := handler.eventStore.GetEventOwner(id)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		handler.response.RespondError(c, http.StatusUnprocessableEntity, "EVENT_NOT_EXIST")
 		return
 	}
 
-	if *eventOwner != currentUserId {
+	if eventOwner != currentUserId {
 		handler.response.RespondError(c, http.StatusForbidden, "ACCESS_DENIED")
 		return
 	}
 
-	handler.eventStore.ApplyPatch(existingEvent, partialEvent)
+	store.ApplyEventPatch(existingEvent, partialEvent)
 
 	updatedEvent, err := handler.eventStore.UpdateEvent(existingEvent)
 
@@ -139,19 +162,19 @@ func (handler *EventHandler) DeleteEvent(c *gin.Context) {
 		return
 	}
 
-	eventOwner, err := handler.eventStore.GetEventOwner(*id)
+	eventOwner, err := handler.eventStore.GetEventOwner(id)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		handler.response.RespondError(c, http.StatusUnprocessableEntity, "EVENT_NOT_EXIST")
 		return
 	}
 
-	if *eventOwner != currentUserId {
+	if eventOwner != currentUserId {
 		handler.response.RespondError(c, http.StatusForbidden, "ACCESS_DENIED")
 		return
 	}
 
-	err = handler.eventStore.DeleteEvent(*id)
+	err = handler.eventStore.DeleteEvent(id)
 
 	if err != nil {
 		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")

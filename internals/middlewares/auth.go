@@ -27,6 +27,6 @@ func Authenticate(c *gin.Context) {
 		return
 	}
 
-	c.Set("userId", *id)
+	c.Set("userId", id)
 	c.Next()
 }

@@ -16,11 +16,18 @@ type Event struct {
 	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
 }
 
+type CreateEventRequest struct {
+	Title       string    `json:"title" validate:"required,min=3,max=50"`
+	Description string    `json:"description"`
+	Location    string    `json:"location" validate:"required"`
+	DateTime    time.Time `json:"dateTime" validate:"required"`
+}
+
 type PatchEventRequest struct {
-	Title       *string
-	Description *string
-	Location    *string
-	DateTime    *time.Time
+	Title       *string    `json:"title" validate:"omitempty,min=3,max=50"`
+	Description *string    `json:"description" validate:"omitempty"`
+	Location    *string    `json:"location" validate:"omitempty"`
+	DateTime    *time.Time `json:"dateTime" validate:"omitempty"`
 }
 
 type EventStore interface {
@@ -29,8 +36,7 @@ type EventStore interface {
 	CreateEvent(*Event) (*Event, error)
 	UpdateEvent(*Event) (*Event, error)
 	DeleteEvent(id string) error
-	GetEventOwner(eventId string) (*string, error)
-	ApplyPatch(e *Event, p PatchEventRequest)
+	GetEventOwner(eventId string) (string, error)
 }
 
 type PostgresEventStore struct {
@@ -188,7 +194,7 @@ func (pg *PostgresEventStore) UpdateEvent(e *Event) (*Event, error) {
 	return e, nil
 }
 
-func (pg *PostgresEventStore) ApplyPatch(e *Event, p PatchEventRequest) {
+func ApplyEventPatch(e *Event, p PatchEventRequest) error {
 	if p.Title != nil {
 		e.Title = *p.Title
 	}
@@ -201,6 +207,7 @@ func (pg *PostgresEventStore) ApplyPatch(e *Event, p PatchEventRequest) {
 	if p.DateTime != nil {
 		e.DateTime = *p.DateTime
 	}
+	return nil
 }
 
 func (pg *PostgresEventStore) DeleteEvent(id string) error {
@@ -229,7 +236,7 @@ func (pg *PostgresEventStore) DeleteEvent(id string) error {
 	return nil
 }
 
-func (pg *PostgresEventStore) GetEventOwner(eventId string) (*string, error) {
+func (pg *PostgresEventStore) GetEventOwner(eventId string) (string, error) {
 	var userID string
 
 	query := `
@@ -240,8 +247,8 @@ func (pg *PostgresEventStore) GetEventOwner(eventId string) (*string, error) {
 
 	err := pg.db.QueryRow(query, eventId).Scan(&userID)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &userID, nil
+	return userID, nil
 }

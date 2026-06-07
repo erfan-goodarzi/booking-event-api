@@ -6,12 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ParseID(c *gin.Context) (*string, error) {
+func ParseID(c *gin.Context) (string, error) {
 	idParams := c.Param("id")
 
 	if idParams == "" {
-		return nil, errors.New("Invalid id")
+		return "", errors.New("Invalid id")
 	}
 
-	return &idParams, nil
+	return idParams, nil
 }

@@ -10,9 +10,9 @@ import (
 
 type User struct {
 	ID       string
-	Username string `binding:"omitempty" json:"username"`
-	Email    string `binding:"required" json:"email"`
-	Password string `binding:"required" json:"password"`
+	Username string `binding:"omitempty" json:"username" validate:"omitempty,min=3,max=20"`
+	Email    string `binding:"required" json:"email" validate:"required,email"`
+	Password string `binding:"required" json:"password" validate:"required,min=8"`
 }
 
 type UserStore interface {

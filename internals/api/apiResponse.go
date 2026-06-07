@@ -52,3 +52,10 @@ func (res APIResponse) RespondLogin(c *gin.Context, status int, message string, 
 		"message": message,
 	})
 }
+
+func (res APIResponse) ValidationError(c *gin.Context, status int, message string, fields map[string]string) {
+	c.JSON(status, gin.H{
+		"message": message,
+		"fields":  fields,
+	})
+}
