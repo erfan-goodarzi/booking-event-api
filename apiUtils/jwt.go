@@ -6,18 +6,34 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 var secretKey = os.Getenv("SECRET_KEY")
 
-func GenerateToken(email string, userId string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+type TokenPair struct {
+	AccessToken  string
+	RefreshToken string
+}
+
+func GenerateToken(email string, userId string) (*TokenPair, error) {
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email":  email,
 		"userId": userId,
-		"exp":    time.Now().Add(time.Hour * 2).Unix(),
+		"exp":    time.Now().Add(time.Minute * 15).Unix(),
 	})
 
-	return token.SignedString([]byte(secretKey))
+	accessTokenStr, err := accessToken.SignedString([]byte(secretKey))
+	if err != nil {
+		return nil, err
+	}
+
+	refreshTokenStr := uuid.New().String()
+
+	return &TokenPair{
+		AccessToken:  accessTokenStr,
+		RefreshToken: refreshTokenStr,
+	}, nil
 }
 
 func VerifyToken(token string) (string, error) {
@@ -47,5 +63,5 @@ func VerifyToken(token string) (string, error) {
 
 	userId := claims["userId"].(string)
 
-	return 	userId, nil
+	return userId, nil
 }

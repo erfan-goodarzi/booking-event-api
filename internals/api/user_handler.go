@@ -3,6 +3,7 @@ package api
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/erfan-goodarzi/booking-event-api/apiUtils"
 	"github.com/erfan-goodarzi/booking-event-api/internals/messages"
@@ -85,12 +86,72 @@ func (handler *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := apiUtils.GenerateToken(user.Email, user.ID)
+	tokens, err := apiUtils.GenerateToken(user.Email, user.ID)
 
 	if err != nil {
 		handler.response.RespondError(c, http.StatusNonAuthoritativeInfo, "UNAUTHORIZED")
 		return
 	}
 
-	handler.response.RespondLogin(c, http.StatusOK, messages.Login, token)
+	err = handler.user.SaveRefreshToken(user.ID, tokens.RefreshToken, time.Now().Add(7*24*time.Hour))
+	if err != nil {
+		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		return
+	}
+
+	c.SetCookie("refresh_token", tokens.RefreshToken, 7*24*60*60, "/", "", false, true)
+
+	handler.response.RespondLogin(c, http.StatusOK, messages.Login, tokens.AccessToken)
+}
+
+func (handler *UserHandler) Refresh(c *gin.Context) {
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		handler.response.RespondError(c, http.StatusUnauthorized, "MISSING_REFRESH_TOKEN")
+		return
+	}
+
+	user, err := handler.user.GetUserByRefreshToken(refreshToken)
+	if err != nil {
+		handler.response.RespondError(c, http.StatusUnauthorized, "INVALID_REFRESH_TOKEN")
+		return
+	}
+
+	err = handler.user.DeleteRefreshToken(refreshToken)
+	if err != nil {
+		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		return
+	}
+
+	tokens, err := apiUtils.GenerateToken(user.Email, user.ID)
+	if err != nil {
+		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		return
+	}
+
+	err = handler.user.SaveRefreshToken(user.ID, tokens.RefreshToken, time.Now().Add(7*24*time.Hour))
+	if err != nil {
+		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		return
+	}
+
+	c.SetCookie("refresh_token", tokens.RefreshToken, 7*24*60*60, "/", "", false, true)
+	handler.response.RespondLogin(c, http.StatusOK, messages.Refresh, tokens.AccessToken)
+}
+
+func (handler *UserHandler) Logout(c *gin.Context) {
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		handler.response.RespondError(c, http.StatusUnauthorized, "MISSING_REFRESH_TOKEN")
+		return
+	}
+
+	err = handler.user.DeleteRefreshToken(refreshToken)
+	if err != nil {
+		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		return
+	}
+
+	c.SetCookie("refresh_token", "", -1, "/", "", true, true)
+	handler.response.RespondSuccess(c, http.StatusOK, messages.Logout)
 }

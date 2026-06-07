@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/erfan-goodarzi/booking-event-api/apiUtils"
 	"github.com/jackc/pgconn"
@@ -18,6 +19,9 @@ type User struct {
 type UserStore interface {
 	Create(u *User) error
 	ValidateCredential(u *User) error
+	SaveRefreshToken(userID string, token string, expiresAt time.Time) error
+	DeleteRefreshToken(token string) error
+	GetUserByRefreshToken(token string) (*User, error)
 }
 
 type PostgresUserStore struct {
@@ -89,4 +93,46 @@ func (pg *PostgresUserStore) ValidateCredential(u *User) error {
 		return errors.New("INVALID_CREDENTIAL")
 	}
 	return nil
+}
+
+func (pg *PostgresUserStore) SaveRefreshToken(userID string, token string, expiresAt time.Time) error {
+	query := `
+	INSERT INTO refresh_tokens(user_id, token, expires_at) 
+	VALUES($1, $2, $3)
+	`
+
+	_, err := pg.db.Exec(query, userID, token, expiresAt)
+
+	return err
+}
+
+func (pg *PostgresUserStore) DeleteRefreshToken(token string) error {
+	query := "DELETE FROM refresh_tokens WHERE token = $1"
+
+	_, err := pg.db.Exec(query, token)
+
+	return err
+}
+
+func (pg *PostgresUserStore) GetUserByRefreshToken(token string) (*User, error) {
+	query := `
+	SELECT u.id, u.email, u.username
+	FROM users u
+	INNER JOIN refresh_tokens rt ON u.id = rt.user_id
+	WHERE rt.token = $1 AND rt.expires_at > NOW()
+	`
+
+	row := pg.db.QueryRow(query, token)
+
+	var user User
+	err := row.Scan(&user.ID, &user.Email, &user.Username)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("INVALID_TOKEN")
+		}
+		return nil, err
+	}
+
+	return &user, nil
 }

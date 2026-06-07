@@ -85,7 +85,7 @@ func (handler *EventHandler) CreateEvents(c *gin.Context) {
 
 	createdEvent, err := handler.eventStore.CreateEvent(&event)
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, err.Error())
+		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 

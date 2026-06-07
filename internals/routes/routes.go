@@ -19,8 +19,14 @@ func RegisterRoutes(app *app.Application) *gin.Engine {
 	r.GET("/events/:id", app.Handlers.Event.GetEvent)
 
 	// Auth
-	r.POST("/signup", app.Handlers.User.Signup)
-	r.POST("/login", app.Handlers.User.Login)
+
+	auth := r.Group("/auth")
+	{
+		auth.POST("/signup", app.Handlers.User.Signup)
+		auth.POST("/login", app.Handlers.User.Login)
+		auth.POST("/refresh", app.Handlers.User.Refresh)
+		auth.POST("/logout", app.Handlers.User.Logout)
+	}
 
 	r.GET("/health", app.HealthCheck)
 
