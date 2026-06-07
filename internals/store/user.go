@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/erfan-goodarzi/booking-event-api/apiUtils"
+	"github.com/erfan-goodarzi/booking-event-api/pkg/apiUtils"
 	"github.com/jackc/pgconn"
 )
 

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/erfan-goodarzi/booking-event-api/apiUtils"
 	"github.com/erfan-goodarzi/booking-event-api/internals/messages"
 	"github.com/erfan-goodarzi/booking-event-api/internals/store"
+	"github.com/erfan-goodarzi/booking-event-api/pkg/apiUtils"
 	"github.com/erfan-goodarzi/booking-event-api/pkg/validation"
 	"github.com/gin-gonic/gin"
 )
