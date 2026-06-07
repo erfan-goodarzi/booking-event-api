@@ -2,6 +2,7 @@ package app
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -25,7 +26,13 @@ type Application struct {
 }
 
 func NewApplication() (*Application, error) {
-	pgDB, err := db.Open()
+	dbSrc := fmt.Sprintf(
+		"host=localhost user=%s password=%s dbname=%s port=5432 sslmode=disable",
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PASSWORD"),
+		os.Getenv("POSTGRES_DB"),
+	)
+	pgDB, err := db.ConnectDB(dbSrc)
 	if err != nil {
 		return nil, err
 	}

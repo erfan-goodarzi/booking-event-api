@@ -4,21 +4,32 @@ import (
 	"database/sql"
 	"fmt"
 	"io/fs"
-	"os"
+	"time"
 
 	"github.com/pressly/goose/v3"
 
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-func Open() (*sql.DB, error) {
-	dbSrc := fmt.Sprintf(
-		"host=localhost user=%s password=%s dbname=%s port=5432 sslmode=disable",
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("POSTGRES_DB"),
-	)
-	db, err := sql.Open("pgx", dbSrc)
+const maxOpenDBConn = 10
+const maxDBIdleConn = 5
+const maxDBLifeTime = 5 * time.Minute
+
+func ConnectDB(distro string) (*sql.DB, error) {
+	db, err := Open(distro)
+	if err != nil {
+		panic(err)
+	}
+
+	db.SetMaxOpenConns(maxOpenDBConn)
+	db.SetMaxIdleConns(maxDBIdleConn)
+	db.SetConnMaxLifetime(maxDBLifeTime)
+
+	return db, nil
+}
+
+func Open(constr string) (*sql.DB, error) {
+	db, err := sql.Open("pgx", constr)
 
 	if err != nil {
 		panic("Could not connect to DB." + err.Error())
@@ -27,8 +38,6 @@ func Open() (*sql.DB, error) {
 	if err := db.Ping(); err != nil {
 		fmt.Printf("db: open %v", err)
 	}
-
-	db.SetMaxOpenConns(10)
 
 	return db, nil
 }
