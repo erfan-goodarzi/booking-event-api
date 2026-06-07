@@ -4,9 +4,9 @@ tmp_dir = "tmp"
 [build]
   cmd = "go build -buildvcs=false -o ./tmp/main ./cmd/main.go"
   bin = "./tmp/main"
-  exclude_dir = ["tmp", "vendor"]
+  exclude_dir = ["tmp", "vendor", "docs"]
   include_ext = ["go"]
-  pre_cmd = ["make migrate-up"]
+  pre_cmd = ["make gen-docs", "make migrate-up"]
 
 [screen]
   clear_on_rebuild = true

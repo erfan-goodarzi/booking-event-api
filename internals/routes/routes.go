@@ -1,9 +1,12 @@
 package routes
 
 import (
+	_ "github.com/erfan-goodarzi/booking-event-api/docs"
 	"github.com/erfan-goodarzi/booking-event-api/internals/app"
 	"github.com/erfan-goodarzi/booking-event-api/internals/middlewares"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func RegisterRoutes(app *app.Application) *gin.Engine {
@@ -29,6 +32,9 @@ func RegisterRoutes(app *app.Application) *gin.Engine {
 	}
 
 	r.GET("/health", app.HealthCheck)
+
+	//doc
+	r.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return r
 }

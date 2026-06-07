@@ -58,6 +58,13 @@ func NewApplication() (*Application, error) {
 	return app, nil
 }
 
+// HealthCheck godoc
+// @Tags Health
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} api.HealthCheckResponse
+// @Failure 503 {object} api.HealthCheckErrorResponse
+// @Router /health [get]
 func (a *Application) HealthCheck(c *gin.Context) {
 	if err := a.DB.Ping(); err != nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"status": "db unavailable"})

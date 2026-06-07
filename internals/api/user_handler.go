@@ -26,6 +26,18 @@ func NewUserHandler(userStore store.UserStore, logger *log.Logger, response *API
 	}
 }
 
+// Signup godoc
+// @Summary Register a new user
+// @Description Create a new user account
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param user body store.User true "User signup payload"
+// @Success 201 {object} store.User
+// @Failure 409 {object} api.ErrorConflict
+// @Failure 422 {object} api.ErrorValidation
+// @Failure 500 {object} api.ErrorInternalServer
+// @Router /auth/signup [post]
 func (handler *UserHandler) Signup(c *gin.Context) {
 	var user store.User
 	err := c.ShouldBindJSON(&user)
@@ -59,6 +71,18 @@ func (handler *UserHandler) Signup(c *gin.Context) {
 	handler.response.RespondSuccess(c, http.StatusCreated, messages.Signup, user)
 }
 
+// Login godoc
+// @Summary Authenticate user
+// @Description Login with email and password, returns access token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param credentials body store.User true "Login credentials (email and password)"
+// @Success 200 {object} api.LoginResponse
+// @Failure 401 {object} api.ErrorUnauthorized
+// @Failure 500 {object} api.ErrorInternalServer
+// @Failure 422 {object} api.ErrorValidation
+// @Router /auth/login [post]
 func (handler *UserHandler) Login(c *gin.Context) {
 	var user store.User
 	err := c.ShouldBindJSON(&user)
@@ -104,6 +128,15 @@ func (handler *UserHandler) Login(c *gin.Context) {
 	handler.response.RespondLogin(c, http.StatusOK, messages.Login, tokens.AccessToken)
 }
 
+// Refresh godoc
+// @Summary Refresh access token
+// @Description Exchange refresh cookie for a new access token
+// @Tags Auth
+// @Produce json
+// @Success 200 {object} api.LoginResponse
+// @Failure 401 {object} api.ErrorUnauthorized
+// @Failure 500 {object} api.ErrorInternalServer
+// @Router /auth/refresh [post]
 func (handler *UserHandler) Refresh(c *gin.Context) {
 	refreshToken, err := c.Cookie("refresh_token")
 	if err != nil {
@@ -139,6 +172,15 @@ func (handler *UserHandler) Refresh(c *gin.Context) {
 	handler.response.RespondLogin(c, http.StatusOK, messages.Refresh, tokens.AccessToken)
 }
 
+// Logout godoc
+// @Summary Logout user
+// @Description Invalidate refresh token and clear cookie
+// @Tags Auth
+// @Produce json
+// @Success 200 {object} api.LogoutResponse
+// @Failure 401 {object} api.ErrorUnauthorized
+// @Failure 500 {object} api.ErrorInternalServer
+// @Router /auth/logout [post]
 func (handler *UserHandler) Logout(c *gin.Context) {
 	refreshToken, err := c.Cookie("refresh_token")
 	if err != nil {

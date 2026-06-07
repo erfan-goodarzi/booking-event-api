@@ -1,0 +1,517 @@
+basePath: /
+definitions:
+  api.ErrorBadRequest:
+    properties:
+      error:
+        example: PAYLOAD_NOT_VALID
+        type: string
+      message:
+        example: Bad Request
+        type: string
+    type: object
+  api.ErrorConflict:
+    properties:
+      error:
+        example: EMAIL_ALREADY_EXISTS
+        type: string
+      message:
+        example: Conflict
+        type: string
+    type: object
+  api.ErrorForbidden:
+    properties:
+      error:
+        example: ACCESS_DENIED
+        type: string
+      message:
+        example: Forbidden
+        type: string
+    type: object
+  api.ErrorInternalServer:
+    properties:
+      error:
+        example: UNKNOWN_ERROR
+        type: string
+      message:
+        example: Internal Server Error
+        type: string
+    type: object
+  api.ErrorNotFound:
+    properties:
+      error:
+        example: EVENT_NOT_FOUND
+        type: string
+      message:
+        example: Not Found
+        type: string
+    type: object
+  api.ErrorUnauthorized:
+    properties:
+      error:
+        example: INVALID_CREDENTIALS
+        type: string
+      message:
+        example: Unauthorized
+        type: string
+    type: object
+  api.ErrorValidation:
+    properties:
+      error:
+        example: VALIDATION_FAILED
+        type: string
+      fields:
+        additionalProperties:
+          type: string
+        example:
+          '{"email"': ' "invalid email format"}'
+        type: object
+      message:
+        example: Validation Failed
+        type: string
+    type: object
+  api.EventDeleteSuccess:
+    properties:
+      message:
+        example: Event deleted successfully
+        type: string
+    type: object
+  api.EventListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/store.Event'
+        type: array
+      message:
+        type: string
+    type: object
+  api.EventResponse:
+    properties:
+      data:
+        $ref: '#/definitions/store.Event'
+      message:
+        type: string
+    type: object
+  api.HealthCheckErrorResponse:
+    properties:
+      error:
+        example: DB_UNAVAILABLE
+        type: string
+      status:
+        example: unavailable
+        type: string
+    type: object
+  api.HealthCheckResponse:
+    properties:
+      status:
+        example: ok
+        type: string
+    type: object
+  api.LoginResponse:
+    properties:
+      message:
+        example: user logged in successfully
+        type: string
+      token:
+        example: eyJhbGci...
+        type: string
+    type: object
+  api.LogoutResponse:
+    properties:
+      message:
+        example: user logged out successfully
+        type: string
+    type: object
+  store.CreateEventRequest:
+    properties:
+      dateTime:
+        example: "2026-06-07T15:04:05Z"
+        format: date-time
+        type: string
+      description:
+        example: Quarterly planning meeting
+        type: string
+      location:
+        example: Conference Room A
+        type: string
+      title:
+        example: Board Meeting
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - dateTime
+    - location
+    - title
+    type: object
+  store.Event:
+    properties:
+      created_at:
+        example: "2026-06-07T15:04:05Z"
+        format: date-time
+        type: string
+      dateTime:
+        example: "2026-06-07T15:04:05Z"
+        format: date-time
+        type: string
+      description:
+        example: Quarterly planning meeting
+        type: string
+      id:
+        example: e2f1c3a8-7d4b-11ec-90d6-0242ac120003
+        type: string
+      location:
+        example: Conference Room A
+        type: string
+      title:
+        example: Board Meeting
+        type: string
+      updated_at:
+        example: "2026-06-07T15:04:05Z"
+        format: date-time
+        type: string
+      userId:
+        example: u12345
+        type: string
+    type: object
+  store.PatchEventRequest:
+    properties:
+      dateTime:
+        example: "2026-07-01T09:00:00Z"
+        format: date-time
+        type: string
+      description:
+        example: Updated description
+        type: string
+      location:
+        example: Room B
+        type: string
+      title:
+        example: Board Meeting
+        maxLength: 50
+        minLength: 3
+        type: string
+    type: object
+  store.User:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      id:
+        example: u12345
+        type: string
+      password:
+        example: P@ssw0rd!
+        minLength: 8
+        type: string
+      username:
+        example: johndoe
+        maxLength: 20
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for booking events
+  title: Booking Event API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email and password, returns access token
+      parameters:
+      - description: Login credentials (email and password)
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/store.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.LoginResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorUnauthorized'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.ErrorValidation'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorInternalServer'
+      summary: Authenticate user
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      description: Invalidate refresh token and clear cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.LogoutResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorUnauthorized'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorInternalServer'
+      summary: Logout user
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      description: Exchange refresh cookie for a new access token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.LoginResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorUnauthorized'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorInternalServer'
+      summary: Refresh access token
+      tags:
+      - Auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account
+      parameters:
+      - description: User signup payload
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/store.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/store.User'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/api.ErrorConflict'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.ErrorValidation'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorInternalServer'
+      summary: Register a new user
+      tags:
+      - Auth
+  /events:
+    get:
+      description: Get all events
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.EventListResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorNotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorInternalServer'
+      summary: List events
+      tags:
+      - Events
+    post:
+      consumes:
+      - application/json
+      description: Create a new event (authenticated)
+      parameters:
+      - description: Event payload
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/store.CreateEventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/store.Event'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorUnauthorized'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.ErrorValidation'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorInternalServer'
+      security:
+      - BearerAuth: []
+      summary: Create an event
+      tags:
+      - Events
+  /events/{id}:
+    delete:
+      description: Delete an event by ID (authenticated, owner only)
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.EventDeleteSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorUnauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ErrorForbidden'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.ErrorValidation'
+      security:
+      - BearerAuth: []
+      summary: Delete an event
+      tags:
+      - Events
+    get:
+      description: Get an event by its ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.EventResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorBadRequest'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorNotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorInternalServer'
+      summary: Get event by ID
+      tags:
+      - Events
+    put:
+      consumes:
+      - application/json
+      description: Update an existing event (authenticated, owner only)
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Patch payload
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/store.PatchEventRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.Event'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.ErrorUnauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ErrorForbidden'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorNotFound'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.ErrorValidation'
+      security:
+      - BearerAuth: []
+      summary: Update an event
+      tags:
+      - Events
+  /health:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.HealthCheckResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/api.HealthCheckErrorResponse'
+      security:
+      - BearerAuth: []
+      tags:
+      - Health
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
