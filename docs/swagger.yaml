@@ -79,7 +79,7 @@ definitions:
     properties:
       data:
         items:
-          $ref: '#/definitions/store.Event'
+          $ref: '#/definitions/models.Event'
         type: array
       message:
         type: string
@@ -87,7 +87,7 @@ definitions:
   api.EventResponse:
     properties:
       data:
-        $ref: '#/definitions/store.Event'
+        $ref: '#/definitions/models.Event'
       message:
         type: string
     type: object
@@ -121,7 +121,38 @@ definitions:
         example: user logged out successfully
         type: string
     type: object
-  store.CreateEventRequest:
+  api.TicketResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Ticket'
+      message:
+        type: string
+    type: object
+  models.Booking:
+    properties:
+      created_at:
+        example: "2026-06-07T15:04:05Z"
+        format: date-time
+        type: string
+      id:
+        example: e2f1c3a8-7d4b-11ec-90d6-0242ac120003
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.bookingStatus'
+        example: pending
+      ticketId:
+        example: t12345
+        type: string
+      updated_at:
+        example: "2026-06-07T15:04:05Z"
+        format: date-time
+        type: string
+      userId:
+        example: u12345
+        type: string
+    type: object
+  models.CreateEventRequest:
     properties:
       dateTime:
         example: "2026-06-07T15:04:05Z"
@@ -143,7 +174,23 @@ definitions:
     - location
     - title
     type: object
-  store.Event:
+  models.CreateTicketRequest:
+    properties:
+      price:
+        example: 99.99
+        type: number
+      quantity:
+        example: 2
+        type: integer
+      type:
+        allOf:
+        - $ref: '#/definitions/models.TicketType'
+        example: vip
+    required:
+    - price
+    - quantity
+    type: object
+  models.Event:
     properties:
       created_at:
         example: "2026-06-07T15:04:05Z"
@@ -162,6 +209,12 @@ definitions:
       location:
         example: Conference Room A
         type: string
+      ticketCount:
+        type: integer
+      tickets:
+        items:
+          $ref: '#/definitions/models.Ticket'
+        type: array
       title:
         example: Board Meeting
         type: string
@@ -173,7 +226,7 @@ definitions:
         example: u12345
         type: string
     type: object
-  store.PatchEventRequest:
+  models.PatchEventRequest:
     properties:
       dateTime:
         example: "2026-07-01T09:00:00Z"
@@ -191,7 +244,49 @@ definitions:
         minLength: 3
         type: string
     type: object
-  store.User:
+  models.Ticket:
+    properties:
+      bookings:
+        items:
+          $ref: '#/definitions/models.Booking'
+        type: array
+      created_at:
+        example: "2026-06-07T15:04:05Z"
+        format: date-time
+        type: string
+      eventId:
+        example: e12345
+        type: string
+      id:
+        example: e2f1c3a8-7d4b-11ec-90d6-0242ac120003
+        type: string
+      price:
+        example: 99.99
+        type: number
+      quantity:
+        example: 2
+        type: integer
+      type:
+        allOf:
+        - $ref: '#/definitions/models.TicketType'
+        example: VIP
+      updated_at:
+        example: "2026-06-07T15:04:05Z"
+        format: date-time
+        type: string
+      userId:
+        example: u12345
+        type: string
+    type: object
+  models.TicketType:
+    enum:
+    - vip
+    - general
+    type: string
+    x-enum-varnames:
+    - TicketTypeVIP
+    - TicketTypeGeneral
+  models.User:
     properties:
       email:
         example: user@example.com
@@ -212,6 +307,16 @@ definitions:
     - email
     - password
     type: object
+  models.bookingStatus:
+    enum:
+    - pending
+    - confirmed
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - BookingStatusPending
+    - BookingStatusConfirmed
+    - BookingStatusCancelled
 host: localhost:8080
 info:
   contact: {}
@@ -230,7 +335,7 @@ paths:
         name: credentials
         required: true
         schema:
-          $ref: '#/definitions/store.User'
+          $ref: '#/definitions/models.User'
       produces:
       - application/json
       responses:
@@ -306,14 +411,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/store.User'
+          $ref: '#/definitions/models.User'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/store.User'
+            $ref: '#/definitions/models.User'
         "409":
           description: Conflict
           schema:
@@ -360,14 +465,14 @@ paths:
         name: event
         required: true
         schema:
-          $ref: '#/definitions/store.CreateEventRequest'
+          $ref: '#/definitions/models.CreateEventRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/store.Event'
+            $ref: '#/definitions/models.Event'
         "401":
           description: Unauthorized
           schema:
@@ -463,14 +568,14 @@ paths:
         name: event
         required: true
         schema:
-          $ref: '#/definitions/store.PatchEventRequest'
+          $ref: '#/definitions/models.PatchEventRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/store.Event'
+            $ref: '#/definitions/models.Event'
         "401":
           description: Unauthorized
           schema:
@@ -490,6 +595,47 @@ paths:
       security:
       - BearerAuth: []
       summary: Update an event
+      tags:
+      - Events
+  /events/{id}/tickets:
+    post:
+      consumes:
+      - application/json
+      description: Create a new ticket (authenticated)
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Ticket payload
+        in: body
+        name: ticket
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateTicketRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.TicketResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorBadRequest'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.ErrorValidation'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorInternalServer'
+      security:
+      - BearerAuth: []
+      summary: Create a ticket
       tags:
       - Events
   /health:

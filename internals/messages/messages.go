@@ -8,4 +8,5 @@ const (
 	Login               = "user logged in successfully"
 	Refresh             = "token refreshed successfully"
 	Logout              = "user logged out successfully"
+	CreateTicketSuccess = "Ticket created successfully"
 )

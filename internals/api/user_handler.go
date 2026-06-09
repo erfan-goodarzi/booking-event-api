@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/erfan-goodarzi/booking-event-api/internals/messages"
+	"github.com/erfan-goodarzi/booking-event-api/internals/models"
 	"github.com/erfan-goodarzi/booking-event-api/internals/store"
 	"github.com/erfan-goodarzi/booking-event-api/pkg/apiUtils"
 	"github.com/erfan-goodarzi/booking-event-api/pkg/validation"
@@ -32,14 +33,14 @@ func NewUserHandler(userStore store.UserStore, logger *log.Logger, response *API
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param user body store.User true "User signup payload"
-// @Success 201 {object} store.User
+// @Param user body models.User true "User signup payload"
+// @Success 201 {object} models.User
 // @Failure 409 {object} api.ErrorConflict
 // @Failure 422 {object} api.ErrorValidation
 // @Failure 500 {object} api.ErrorInternalServer
 // @Router /auth/signup [post]
 func (handler *UserHandler) Signup(c *gin.Context) {
-	var user store.User
+	var user models.User
 	err := c.ShouldBindJSON(&user)
 
 	if err != nil {
@@ -77,14 +78,14 @@ func (handler *UserHandler) Signup(c *gin.Context) {
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param credentials body store.User true "Login credentials (email and password)"
+// @Param credentials body models.User true "Login credentials (email and password)"
 // @Success 200 {object} api.LoginResponse
 // @Failure 401 {object} api.ErrorUnauthorized
 // @Failure 500 {object} api.ErrorInternalServer
 // @Failure 422 {object} api.ErrorValidation
 // @Router /auth/login [post]
 func (handler *UserHandler) Login(c *gin.Context) {
-	var user store.User
+	var user models.User
 	err := c.ShouldBindJSON(&user)
 
 	if err != nil {

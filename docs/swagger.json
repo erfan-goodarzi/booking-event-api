@@ -29,7 +29,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/store.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 ],
@@ -145,7 +145,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/store.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 ],
@@ -153,7 +153,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/store.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     },
                     "409": {
@@ -232,7 +232,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/store.CreateEventRequest"
+                            "$ref": "#/definitions/models.CreateEventRequest"
                         }
                     }
                 ],
@@ -240,7 +240,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/store.Event"
+                            "$ref": "#/definitions/models.Event"
                         }
                     },
                     "401": {
@@ -341,7 +341,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/store.PatchEventRequest"
+                            "$ref": "#/definitions/models.PatchEventRequest"
                         }
                     }
                 ],
@@ -349,7 +349,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/store.Event"
+                            "$ref": "#/definitions/models.Event"
                         }
                     },
                     "401": {
@@ -424,6 +424,70 @@
                         "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/api.ErrorValidation"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{id}/tickets": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new ticket (authenticated)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Create a ticket",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Ticket payload",
+                        "name": "ticket",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateTicketRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/api.TicketResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorBadRequest"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorValidation"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorInternalServer"
                         }
                     }
                 }
@@ -575,7 +639,7 @@
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/store.Event"
+                        "$ref": "#/definitions/models.Event"
                     }
                 },
                 "message": {
@@ -587,7 +651,7 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/store.Event"
+                    "$ref": "#/definitions/models.Event"
                 },
                 "message": {
                     "type": "string"
@@ -638,7 +702,53 @@
                 }
             }
         },
-        "store.CreateEventRequest": {
+        "api.TicketResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.Ticket"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Booking": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-06-07T15:04:05Z"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "e2f1c3a8-7d4b-11ec-90d6-0242ac120003"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.bookingStatus"
+                        }
+                    ],
+                    "example": "pending"
+                },
+                "ticketId": {
+                    "type": "string",
+                    "example": "t12345"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-06-07T15:04:05Z"
+                },
+                "userId": {
+                    "type": "string",
+                    "example": "u12345"
+                }
+            }
+        },
+        "models.CreateEventRequest": {
             "type": "object",
             "required": [
                 "dateTime",
@@ -667,7 +777,32 @@
                 }
             }
         },
-        "store.Event": {
+        "models.CreateTicketRequest": {
+            "type": "object",
+            "required": [
+                "price",
+                "quantity"
+            ],
+            "properties": {
+                "price": {
+                    "type": "number",
+                    "example": 99.99
+                },
+                "quantity": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TicketType"
+                        }
+                    ],
+                    "example": "vip"
+                }
+            }
+        },
+        "models.Event": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -692,6 +827,15 @@
                     "type": "string",
                     "example": "Conference Room A"
                 },
+                "ticketCount": {
+                    "type": "integer"
+                },
+                "tickets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Ticket"
+                    }
+                },
                 "title": {
                     "type": "string",
                     "example": "Board Meeting"
@@ -707,7 +851,7 @@
                 }
             }
         },
-        "store.PatchEventRequest": {
+        "models.PatchEventRequest": {
             "type": "object",
             "properties": {
                 "dateTime": {
@@ -731,7 +875,67 @@
                 }
             }
         },
-        "store.User": {
+        "models.Ticket": {
+            "type": "object",
+            "properties": {
+                "bookings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Booking"
+                    }
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-06-07T15:04:05Z"
+                },
+                "eventId": {
+                    "type": "string",
+                    "example": "e12345"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "e2f1c3a8-7d4b-11ec-90d6-0242ac120003"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 99.99
+                },
+                "quantity": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "type": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.TicketType"
+                        }
+                    ],
+                    "example": "VIP"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-06-07T15:04:05Z"
+                },
+                "userId": {
+                    "type": "string",
+                    "example": "u12345"
+                }
+            }
+        },
+        "models.TicketType": {
+            "type": "string",
+            "enum": [
+                "vip",
+                "general"
+            ],
+            "x-enum-varnames": [
+                "TicketTypeVIP",
+                "TicketTypeGeneral"
+            ]
+        },
+        "models.User": {
             "type": "object",
             "required": [
                 "email",
@@ -758,6 +962,19 @@
                     "example": "johndoe"
                 }
             }
+        },
+        "models.bookingStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "confirmed",
+                "cancelled"
+            ],
+            "x-enum-varnames": [
+                "BookingStatusPending",
+                "BookingStatusConfirmed",
+                "BookingStatusCancelled"
+            ]
         }
     },
     "securityDefinitions": {

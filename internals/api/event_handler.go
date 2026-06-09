@@ -6,9 +6,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/erfan-goodarzi/booking-event-api/pkg/apiUtils"
 	"github.com/erfan-goodarzi/booking-event-api/internals/messages"
+	"github.com/erfan-goodarzi/booking-event-api/internals/models"
 	"github.com/erfan-goodarzi/booking-event-api/internals/store"
+	"github.com/erfan-goodarzi/booking-event-api/pkg/apiUtils"
 	"github.com/erfan-goodarzi/booking-event-api/pkg/validation"
 	"github.com/gin-gonic/gin"
 )
@@ -76,21 +77,21 @@ func (handler *EventHandler) GetEvent(c *gin.Context) {
 	handler.response.RespondRetrievedSuccess(c, http.StatusOK, event)
 }
 
-// CreateEvents godoc
+// CreateEvent godoc
 // @Summary Create an event
 // @Description Create a new event (authenticated)
 // @Tags Events
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param event body store.CreateEventRequest true "Event payload"
-// @Success 201 {object} store.Event
+// @Param event body models.CreateEventRequest true "Event payload"
+// @Success 201 {object} models.Event
 // @Failure 401 {object} api.ErrorUnauthorized
 // @Failure 422 {object} api.ErrorValidation
 // @Failure 500 {object} api.ErrorInternalServer
 // @Router /events [post]
-func (handler *EventHandler) CreateEvents(c *gin.Context) {
-	var payload store.CreateEventRequest
+func (handler *EventHandler) CreateEvent(c *gin.Context) {
+	var payload models.CreateEventRequest
 	err := c.ShouldBindJSON(&payload)
 
 	if err != nil {
@@ -105,16 +106,16 @@ func (handler *EventHandler) CreateEvents(c *gin.Context) {
 		return
 	}
 
-	event := store.Event{
+	event := models.Event{
 		Title:       payload.Title,
 		Description: payload.Description,
 		Location:    payload.Location,
 		DateTime:    payload.DateTime,
-		UserID:      c.GetString("userId"),
+		UserId:      c.GetString("userId"),
 	}
 
 	id := c.GetString("userId")
-	event.UserID = id
+	event.UserId = id
 
 	createdEvent, err := handler.eventStore.CreateEvent(&event)
 	if err != nil {
@@ -133,8 +134,8 @@ func (handler *EventHandler) CreateEvents(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path string true "Event ID"
-// @Param event body store.PatchEventRequest true "Patch payload"
-// @Success 200 {object} store.Event
+// @Param event body models.PatchEventRequest true "Patch payload"
+// @Success 200 {object} models.Event
 // @Failure 401 {object} api.ErrorUnauthorized
 // @Failure 403 {object} api.ErrorForbidden
 // @Failure 404 {object} api.ErrorNotFound
@@ -161,7 +162,7 @@ func (handler *EventHandler) UpdateEvent(c *gin.Context) {
 		return
 	}
 
-	var partialEvent store.PatchEventRequest
+	var partialEvent models.PatchEventRequest
 
 	err = c.ShouldBindJSON(&partialEvent)
 

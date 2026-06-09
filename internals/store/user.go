@@ -5,23 +5,17 @@ import (
 	"errors"
 	"time"
 
+	"github.com/erfan-goodarzi/booking-event-api/internals/models"
 	"github.com/erfan-goodarzi/booking-event-api/pkg/apiUtils"
 	"github.com/jackc/pgconn"
 )
 
-type User struct {
-	ID       string `json:"id" example:"u12345"`
-	Username string `binding:"omitempty" json:"username" validate:"omitempty,min=3,max=20" example:"johndoe"`
-	Email    string `binding:"required" json:"email" validate:"required,email" example:"user@example.com"`
-	Password string `binding:"required" json:"password" validate:"required,min=8" example:"P@ssw0rd!"`
-}
-
 type UserStore interface {
-	Create(u *User) error
-	ValidateCredential(u *User) error
+	Create(u *models.User) error
+	ValidateCredential(u *models.User) error
 	SaveRefreshToken(userID string, token string, expiresAt time.Time) error
 	DeleteRefreshToken(token string) error
-	GetUserByRefreshToken(token string) (*User, error)
+	GetUserByRefreshToken(token string) (*models.User, error)
 }
 
 type PostgresUserStore struct {
@@ -32,7 +26,7 @@ func NewPostgresUserStore(db *sql.DB) *PostgresUserStore {
 	return &PostgresUserStore{db: db}
 }
 
-func (pg *PostgresUserStore) Create(u *User) error {
+func (pg *PostgresUserStore) Create(u *models.User) error {
 	tx, err := pg.db.Begin()
 
 	if err != nil {
@@ -75,7 +69,7 @@ func (pg *PostgresUserStore) Create(u *User) error {
 	return nil
 }
 
-func (pg *PostgresUserStore) ValidateCredential(u *User) error {
+func (pg *PostgresUserStore) ValidateCredential(u *models.User) error {
 	query := "SELECT id, password FROM users WHERE email = $1"
 
 	row := pg.db.QueryRow(query, u.Email)
@@ -114,7 +108,7 @@ func (pg *PostgresUserStore) DeleteRefreshToken(token string) error {
 	return err
 }
 
-func (pg *PostgresUserStore) GetUserByRefreshToken(token string) (*User, error) {
+func (pg *PostgresUserStore) GetUserByRefreshToken(token string) (*models.User, error) {
 	query := `
 	SELECT u.id, u.email, u.username
 	FROM users u
@@ -124,7 +118,7 @@ func (pg *PostgresUserStore) GetUserByRefreshToken(token string) (*User, error) 
 
 	row := pg.db.QueryRow(query, token)
 
-	var user User
+	var user models.User
 	err := row.Scan(&user.ID, &user.Email, &user.Username)
 
 	if err != nil {

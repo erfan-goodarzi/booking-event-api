@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/erfan-goodarzi/booking-event-api/internals/store"
+	"github.com/erfan-goodarzi/booking-event-api/internals/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -73,13 +73,18 @@ type HealthCheckErrorResponse struct {
 }
 
 type EventResponse struct {
-	Data    store.Event `json:"data"`
-	Message string      `json:"message"`
+	Data    models.Event `json:"data"`
+	Message string       `json:"message"`
+}
+
+type TicketResponse struct {
+	Data    models.Ticket `json:"data"`
+	Message string        `json:"message"`
 }
 
 type EventListResponse struct {
-	Data    []store.Event `json:"data"`
-	Message string        `json:"message"`
+	Data    []models.Event `json:"data"`
+	Message string         `json:"message"`
 }
 
 func (res APIResponse) RespondError(c *gin.Context, status int, err string) {

@@ -2,39 +2,15 @@ package store
 
 import (
 	"database/sql"
-	"time"
+
+	"github.com/erfan-goodarzi/booking-event-api/internals/models"
 )
 
-type Event struct {
-	ID          string    `json:"id" example:"e2f1c3a8-7d4b-11ec-90d6-0242ac120003"`
-	Title       string    `json:"title" example:"Board Meeting"`
-	Description string    `json:"description" example:"Quarterly planning meeting"`
-	Location    string    `json:"location" example:"Conference Room A"`
-	DateTime    time.Time `json:"dateTime" db:"date_time" swaggertype:"string" format:"date-time" example:"2026-06-07T15:04:05Z"`
-	UserID      string    `json:"userId" db:"user_id" example:"u12345"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at" swaggertype:"string" format:"date-time" example:"2026-06-07T15:04:05Z"`
-	UpdatedAt   time.Time `json:"updated_at" db:"updated_at" swaggertype:"string" format:"date-time" example:"2026-06-07T15:04:05Z"`
-}
-
-type CreateEventRequest struct {
-	Title       string    `json:"title" validate:"required,min=3,max=50" example:"Board Meeting"`
-	Description string    `json:"description" example:"Quarterly planning meeting"`
-	Location    string    `json:"location" validate:"required" example:"Conference Room A"`
-	DateTime    time.Time `json:"dateTime" validate:"required" swaggertype:"string" format:"date-time" example:"2026-06-07T15:04:05Z"`
-}
-
-type PatchEventRequest struct {
-	Title       *string    `json:"title" validate:"omitempty,min=3,max=50" example:"Board Meeting"`
-	Description *string    `json:"description" validate:"omitempty" example:"Updated description"`
-	Location    *string    `json:"location" validate:"omitempty" example:"Room B"`
-	DateTime    *time.Time `json:"dateTime" validate:"omitempty" swaggertype:"string" format:"date-time" example:"2026-07-01T09:00:00Z"`
-}
-
 type EventStore interface {
-	GetAllEvents() ([]Event, error)
-	GetEvent(id string) (*Event, error)
-	CreateEvent(*Event) (*Event, error)
-	UpdateEvent(*Event) (*Event, error)
+	GetAllEvents() ([]models.Event, error)
+	GetEvent(id string) (*models.Event, error)
+	CreateEvent(*models.Event) (*models.Event, error)
+	UpdateEvent(*models.Event) (*models.Event, error)
 	DeleteEvent(id string) error
 	GetEventOwner(eventId string) (string, error)
 }
@@ -47,8 +23,8 @@ func NewPostgresEventStore(db *sql.DB) *PostgresEventStore {
 	return &PostgresEventStore{db: db}
 }
 
-func (pg *PostgresEventStore) GetAllEvents() ([]Event, error) {
-	var events []Event
+func (pg *PostgresEventStore) GetAllEvents() ([]models.Event, error) {
+	var events []models.Event
 
 	query := `
 	SELECT
@@ -72,7 +48,7 @@ func (pg *PostgresEventStore) GetAllEvents() ([]Event, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var event Event
+		var event models.Event
 
 		err := rows.Scan(
 			&event.ID,
@@ -80,7 +56,7 @@ func (pg *PostgresEventStore) GetAllEvents() ([]Event, error) {
 			&event.Description,
 			&event.Location,
 			&event.DateTime,
-			&event.UserID,
+			&event.UserId,
 			&event.CreatedAt,
 			&event.UpdatedAt,
 		)
@@ -98,8 +74,8 @@ func (pg *PostgresEventStore) GetAllEvents() ([]Event, error) {
 	return events, nil
 }
 
-func (pg *PostgresEventStore) GetEvent(id string) (*Event, error) {
-	var event Event
+func (pg *PostgresEventStore) GetEvent(id string) (*models.Event, error) {
+	var event models.Event
 
 	query := `
 	SELECT
@@ -123,7 +99,7 @@ func (pg *PostgresEventStore) GetEvent(id string) (*Event, error) {
 		&event.Description,
 		&event.Location,
 		&event.DateTime,
-		&event.UserID,
+		&event.UserId,
 		&event.CreatedAt,
 		&event.UpdatedAt,
 	)
@@ -135,7 +111,7 @@ func (pg *PostgresEventStore) GetEvent(id string) (*Event, error) {
 	return &event, nil
 }
 
-func (pg *PostgresEventStore) CreateEvent(e *Event) (*Event, error) {
+func (pg *PostgresEventStore) CreateEvent(e *models.Event) (*models.Event, error) {
 	tx, err := pg.db.Begin()
 
 	if err != nil {
@@ -148,7 +124,7 @@ func (pg *PostgresEventStore) CreateEvent(e *Event) (*Event, error) {
 	VALUES ($1, $2, $3, $4, $5)
 	RETURNING id, created_at, updated_at`
 
-	err = tx.QueryRow(query, e.Title, e.Description, e.Location, e.DateTime, e.UserID).Scan(&e.ID, &e.CreatedAt, &e.UpdatedAt)
+	err = tx.QueryRow(query, e.Title, e.Description, e.Location, e.DateTime, e.UserId).Scan(&e.ID, &e.CreatedAt, &e.UpdatedAt)
 
 	if err != nil {
 		return nil, err
@@ -162,7 +138,7 @@ func (pg *PostgresEventStore) CreateEvent(e *Event) (*Event, error) {
 	return e, nil
 }
 
-func (pg *PostgresEventStore) UpdateEvent(e *Event) (*Event, error) {
+func (pg *PostgresEventStore) UpdateEvent(e *models.Event) (*models.Event, error) {
 	tx, err := pg.db.Begin()
 
 	if err != nil {
@@ -194,7 +170,7 @@ func (pg *PostgresEventStore) UpdateEvent(e *Event) (*Event, error) {
 	return e, nil
 }
 
-func ApplyEventPatch(e *Event, p PatchEventRequest) error {
+func ApplyEventPatch(e *models.Event, p models.PatchEventRequest) error {
 	if p.Title != nil {
 		e.Title = *p.Title
 	}
