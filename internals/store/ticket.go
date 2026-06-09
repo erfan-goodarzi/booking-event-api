@@ -8,8 +8,6 @@ import (
 
 type TicketStore interface {
 	CreateTicket(id string, t *models.Ticket) (*models.Ticket, error)
-	// UpdateTicket(*models.Ticket) (*models.Ticket, error)
-	// DeleteTicket(id string) error
 }
 
 type PostgresTicketStore struct {

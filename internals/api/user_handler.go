@@ -39,37 +39,37 @@ func NewUserHandler(userStore store.UserStore, logger *log.Logger, response *API
 // @Failure 422 {object} api.ErrorValidation
 // @Failure 500 {object} api.ErrorInternalServer
 // @Router /auth/signup [post]
-func (handler *UserHandler) Signup(c *gin.Context) {
+func (h *UserHandler) Signup(c *gin.Context) {
 	var user models.User
 	err := c.ShouldBindJSON(&user)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusUnprocessableEntity, "PAYLOAD_NOT_VALID")
+		h.response.RespondError(c, http.StatusUnprocessableEntity, "PAYLOAD_NOT_VALID")
 		return
 	}
 
 	err = validation.Validate.Struct(user)
 
 	if err != nil {
-		handler.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
+		h.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
 		return
 	}
 
-	err = handler.user.Create(&user)
+	err = h.user.Create(&user)
 
 	if err != nil {
 		switch err.Error() {
 		case "EMAIL_ALREADY_EXISTS":
-			handler.response.RespondError(c, http.StatusConflict, "EMAIL_ALREADY_EXISTS")
+			h.response.RespondError(c, http.StatusConflict, "EMAIL_ALREADY_EXISTS")
 		case "USERNAME_ALREADY_EXISTS":
-			handler.response.RespondError(c, http.StatusConflict, "USERNAME_ALREADY_EXISTS")
+			h.response.RespondError(c, http.StatusConflict, "USERNAME_ALREADY_EXISTS")
 		default:
-			handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+			h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		}
 		return
 	}
 
-	handler.response.RespondSuccess(c, http.StatusCreated, messages.Signup, user)
+	h.response.RespondSuccess(c, http.StatusCreated, messages.Signup, user)
 }
 
 // Login godoc
@@ -84,49 +84,49 @@ func (handler *UserHandler) Signup(c *gin.Context) {
 // @Failure 500 {object} api.ErrorInternalServer
 // @Failure 422 {object} api.ErrorValidation
 // @Router /auth/login [post]
-func (handler *UserHandler) Login(c *gin.Context) {
+func (h *UserHandler) Login(c *gin.Context) {
 	var user models.User
 	err := c.ShouldBindJSON(&user)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusUnprocessableEntity, "PAYLOAD_NOT_VALID")
+		h.response.RespondError(c, http.StatusUnprocessableEntity, "PAYLOAD_NOT_VALID")
 		return
 	}
 
 	err = validation.Validate.Struct(user)
 
 	if err != nil {
-		handler.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
+		h.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
 		return
 	}
 
-	err = handler.user.ValidateCredential(&user)
+	err = h.user.ValidateCredential(&user)
 
 	if err != nil {
 		if err.Error() == "INVALID_CREDENTIAL" {
-			handler.response.RespondError(c, http.StatusNonAuthoritativeInfo, "UNAUTHORIZED")
+			h.response.RespondError(c, http.StatusNonAuthoritativeInfo, "UNAUTHORIZED")
 			return
 		}
-		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 
 	tokens, err := apiUtils.GenerateToken(user.Email, user.ID)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusNonAuthoritativeInfo, "UNAUTHORIZED")
+		h.response.RespondError(c, http.StatusNonAuthoritativeInfo, "UNAUTHORIZED")
 		return
 	}
 
-	err = handler.user.SaveRefreshToken(user.ID, tokens.RefreshToken, time.Now().Add(7*24*time.Hour))
+	err = h.user.SaveRefreshToken(user.ID, tokens.RefreshToken, time.Now().Add(7*24*time.Hour))
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 
 	c.SetCookie("refresh_token", tokens.RefreshToken, 7*24*60*60, "/", "", false, true)
 
-	handler.response.RespondLogin(c, http.StatusOK, messages.Login, tokens.AccessToken)
+	h.response.RespondLogin(c, http.StatusOK, messages.Login, tokens.AccessToken)
 }
 
 // Refresh godoc
@@ -138,39 +138,39 @@ func (handler *UserHandler) Login(c *gin.Context) {
 // @Failure 401 {object} api.ErrorUnauthorized
 // @Failure 500 {object} api.ErrorInternalServer
 // @Router /auth/refresh [post]
-func (handler *UserHandler) Refresh(c *gin.Context) {
+func (h *UserHandler) Refresh(c *gin.Context) {
 	refreshToken, err := c.Cookie("refresh_token")
 	if err != nil {
-		handler.response.RespondError(c, http.StatusUnauthorized, "MISSING_REFRESH_TOKEN")
+		h.response.RespondError(c, http.StatusUnauthorized, "MISSING_REFRESH_TOKEN")
 		return
 	}
 
-	user, err := handler.user.GetUserByRefreshToken(refreshToken)
+	user, err := h.user.GetUserByRefreshToken(refreshToken)
 	if err != nil {
-		handler.response.RespondError(c, http.StatusUnauthorized, "INVALID_REFRESH_TOKEN")
+		h.response.RespondError(c, http.StatusUnauthorized, "INVALID_REFRESH_TOKEN")
 		return
 	}
 
-	err = handler.user.DeleteRefreshToken(refreshToken)
+	err = h.user.DeleteRefreshToken(refreshToken)
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 
 	tokens, err := apiUtils.GenerateToken(user.Email, user.ID)
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 
-	err = handler.user.SaveRefreshToken(user.ID, tokens.RefreshToken, time.Now().Add(7*24*time.Hour))
+	err = h.user.SaveRefreshToken(user.ID, tokens.RefreshToken, time.Now().Add(7*24*time.Hour))
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 
 	c.SetCookie("refresh_token", tokens.RefreshToken, 7*24*60*60, "/", "", false, true)
-	handler.response.RespondLogin(c, http.StatusOK, messages.Refresh, tokens.AccessToken)
+	h.response.RespondLogin(c, http.StatusOK, messages.Refresh, tokens.AccessToken)
 }
 
 // Logout godoc
@@ -182,19 +182,19 @@ func (handler *UserHandler) Refresh(c *gin.Context) {
 // @Failure 401 {object} api.ErrorUnauthorized
 // @Failure 500 {object} api.ErrorInternalServer
 // @Router /auth/logout [post]
-func (handler *UserHandler) Logout(c *gin.Context) {
+func (h *UserHandler) Logout(c *gin.Context) {
 	refreshToken, err := c.Cookie("refresh_token")
 	if err != nil {
-		handler.response.RespondError(c, http.StatusUnauthorized, "MISSING_REFRESH_TOKEN")
+		h.response.RespondError(c, http.StatusUnauthorized, "MISSING_REFRESH_TOKEN")
 		return
 	}
 
-	err = handler.user.DeleteRefreshToken(refreshToken)
+	err = h.user.DeleteRefreshToken(refreshToken)
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 
 	c.SetCookie("refresh_token", "", -1, "/", "", true, true)
-	handler.response.RespondSuccess(c, http.StatusOK, messages.Logout)
+	h.response.RespondSuccess(c, http.StatusOK, messages.Logout)
 }

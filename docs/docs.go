@@ -200,12 +200,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/api.EventListResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorNotFound"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {

@@ -52,7 +52,7 @@ func NewApplication() (*Application, error) {
 
 	eventHandler := api.NewEventHandler(eventStore, logger, apiResponse)
 	userHandler := api.NewUserHandler(userStore, logger, apiResponse)
-	ticketHandler := api.NewTicketHandler(ticketStore, logger, apiResponse)
+	ticketHandler := api.NewTicketHandler(ticketStore, eventStore, logger, apiResponse)
 
 	handlers := &Handler{
 		Event:  eventHandler,

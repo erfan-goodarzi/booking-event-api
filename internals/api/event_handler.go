@@ -34,18 +34,17 @@ func NewEventHandler(eventStore store.EventStore, logger *log.Logger, response *
 // @Tags Events
 // @Produce json
 // @Success 200 {object} api.EventListResponse
-// @Failure 404 {object} api.ErrorNotFound
 // @Failure 500 {object} api.ErrorInternalServer
 // @Router /events [get]
-func (handler *EventHandler) GetEvents(c *gin.Context) {
-	events, err := handler.eventStore.GetAllEvents()
+func (h *EventHandler) GetEvents(c *gin.Context) {
+	events, err := h.eventStore.GetAllEvents()
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
+		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 
-	handler.response.RespondRetrievedSuccess(c, http.StatusOK, events)
+	h.response.RespondRetrievedSuccess(c, http.StatusOK, events)
 }
 
 // GetEvent godoc
@@ -59,22 +58,22 @@ func (handler *EventHandler) GetEvents(c *gin.Context) {
 // @Failure 404 {object} api.ErrorNotFound
 // @Failure 500 {object} api.ErrorInternalServer
 // @Router /events/{id} [get]
-func (handler *EventHandler) GetEvent(c *gin.Context) {
+func (h *EventHandler) GetEvent(c *gin.Context) {
 	id, err := apiUtils.ParseID(c)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusNotFound, "ID_NOT_FOUND")
+		h.response.RespondError(c, http.StatusNotFound, "ID_NOT_FOUND")
 		return
 	}
 
-	event, err := handler.eventStore.GetEvent(id)
+	event, err := h.eventStore.GetEvent(id)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
+		h.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
 		return
 	}
 
-	handler.response.RespondRetrievedSuccess(c, http.StatusOK, event)
+	h.response.RespondRetrievedSuccess(c, http.StatusOK, event)
 }
 
 // CreateEvent godoc
@@ -90,19 +89,19 @@ func (handler *EventHandler) GetEvent(c *gin.Context) {
 // @Failure 422 {object} api.ErrorValidation
 // @Failure 500 {object} api.ErrorInternalServer
 // @Router /events [post]
-func (handler *EventHandler) CreateEvent(c *gin.Context) {
+func (h *EventHandler) CreateEvent(c *gin.Context) {
 	var payload models.CreateEventRequest
 	err := c.ShouldBindJSON(&payload)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusUnprocessableEntity, "PAYLOAD_NOT_VALID")
+		h.response.RespondError(c, http.StatusUnprocessableEntity, "PAYLOAD_NOT_VALID")
 		return
 	}
 
 	err = validation.Validate.Struct(payload)
 
 	if err != nil {
-		handler.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
+		h.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
 		return
 	}
 
@@ -117,13 +116,13 @@ func (handler *EventHandler) CreateEvent(c *gin.Context) {
 	id := c.GetString("userId")
 	event.UserId = id
 
-	createdEvent, err := handler.eventStore.CreateEvent(&event)
+	createdEvent, err := h.eventStore.CreateEvent(&event)
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 
-	handler.response.RespondSuccess(c, http.StatusCreated, messages.CreateEventSuccess, createdEvent)
+	h.response.RespondSuccess(c, http.StatusCreated, messages.CreateEventSuccess, createdEvent)
 }
 
 // UpdateEvent godoc
@@ -141,24 +140,24 @@ func (handler *EventHandler) CreateEvent(c *gin.Context) {
 // @Failure 404 {object} api.ErrorNotFound
 // @Failure 422 {object} api.ErrorValidation
 // @Router /events/{id} [put]
-func (handler *EventHandler) UpdateEvent(c *gin.Context) {
+func (h *EventHandler) UpdateEvent(c *gin.Context) {
 	id, err := apiUtils.ParseID(c)
 	currentUserId := c.GetString("userId")
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusNotFound, "ID_NOT_FOUND")
+		h.response.RespondError(c, http.StatusNotFound, "ID_NOT_FOUND")
 		return
 	}
 
-	existingEvent, err := handler.eventStore.GetEvent(id)
+	existingEvent, err := h.eventStore.GetEvent(id)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
+		h.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
 		return
 	}
 
 	if existingEvent == nil {
-		handler.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
+		h.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
 		return
 	}
 
@@ -167,39 +166,39 @@ func (handler *EventHandler) UpdateEvent(c *gin.Context) {
 	err = c.ShouldBindJSON(&partialEvent)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusUnprocessableEntity, "PAYLOAD_NOT_VALID")
+		h.response.RespondError(c, http.StatusUnprocessableEntity, "PAYLOAD_NOT_VALID")
 		return
 	}
 
 	err = validation.Validate.Struct(partialEvent)
 
 	if err != nil {
-		handler.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
+		h.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
 		return
 	}
 
-	eventOwner, err := handler.eventStore.GetEventOwner(id)
+	eventOwner, err := h.eventStore.GetEventOwner(id)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		handler.response.RespondError(c, http.StatusUnprocessableEntity, "EVENT_NOT_EXIST")
+		h.response.RespondError(c, http.StatusUnprocessableEntity, "EVENT_NOT_EXIST")
 		return
 	}
 
 	if eventOwner != currentUserId {
-		handler.response.RespondError(c, http.StatusForbidden, "ACCESS_DENIED")
+		h.response.RespondError(c, http.StatusForbidden, "ACCESS_DENIED")
 		return
 	}
 
 	store.ApplyEventPatch(existingEvent, partialEvent)
 
-	updatedEvent, err := handler.eventStore.UpdateEvent(existingEvent)
+	updatedEvent, err := h.eventStore.UpdateEvent(existingEvent)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 
-	handler.response.RespondSuccess(c, http.StatusOK, messages.UpdateEventSuccess, updatedEvent)
+	h.response.RespondSuccess(c, http.StatusOK, messages.UpdateEventSuccess, updatedEvent)
 }
 
 // DeleteEvent godoc
@@ -214,33 +213,33 @@ func (handler *EventHandler) UpdateEvent(c *gin.Context) {
 // @Failure 403 {object} api.ErrorForbidden
 // @Failure 422 {object} api.ErrorValidation
 // @Router /events/{id} [delete]
-func (handler *EventHandler) DeleteEvent(c *gin.Context) {
+func (h *EventHandler) DeleteEvent(c *gin.Context) {
 	id, err := apiUtils.ParseID(c)
 	currentUserId := c.GetString("userId")
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusNotFound, "ID_NOT_FOUND")
+		h.response.RespondError(c, http.StatusNotFound, "ID_NOT_FOUND")
 		return
 	}
 
-	eventOwner, err := handler.eventStore.GetEventOwner(id)
+	eventOwner, err := h.eventStore.GetEventOwner(id)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		handler.response.RespondError(c, http.StatusUnprocessableEntity, "EVENT_NOT_EXIST")
+		h.response.RespondError(c, http.StatusUnprocessableEntity, "EVENT_NOT_EXIST")
 		return
 	}
 
 	if eventOwner != currentUserId {
-		handler.response.RespondError(c, http.StatusForbidden, "ACCESS_DENIED")
+		h.response.RespondError(c, http.StatusForbidden, "ACCESS_DENIED")
 		return
 	}
 
-	err = handler.eventStore.DeleteEvent(id)
+	err = h.eventStore.DeleteEvent(id)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 
-	handler.response.RespondSuccess(c, http.StatusOK, messages.DeletesEventSuccess)
+	h.response.RespondSuccess(c, http.StatusOK, messages.DeletesEventSuccess)
 }

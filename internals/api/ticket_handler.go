@@ -1,6 +1,8 @@
 package api
 
 import (
+	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 
@@ -13,13 +15,15 @@ import (
 
 type TicketHandler struct {
 	ticketStore store.TicketStore
+	eventStore  store.EventStore
 	logger      *log.Logger
 	response    *APIResponse
 }
 
-func NewTicketHandler(ticketStore store.TicketStore, logger *log.Logger, response *APIResponse) *TicketHandler {
+func NewTicketHandler(ticketStore store.TicketStore, eventStore store.EventStore, logger *log.Logger, response *APIResponse) *TicketHandler {
 	return &TicketHandler{
 		ticketStore,
+		eventStore,
 		logger,
 		response,
 	}
@@ -39,19 +43,32 @@ func NewTicketHandler(ticketStore store.TicketStore, logger *log.Logger, respons
 // @Failure 422 {object} api.ErrorValidation
 // @Failure 500 {object} api.ErrorInternalServer
 // @Router /events/{id}/tickets [post]
-func (handler *TicketHandler) CreateTicket(c *gin.Context) {
+func (h *TicketHandler) CreateTicket(c *gin.Context) {
 	var payload models.CreateTicketRequest
 	id, err := apiUtils.ParseID(c)
+	currentUserId := c.GetString("userId")
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusNotFound, "ID_NOT_FOUND")
+		h.response.RespondError(c, http.StatusNotFound, "ID_NOT_FOUND")
 		return
 	}
 
 	err = c.ShouldBindJSON(&payload)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusUnprocessableEntity, "PAYLOAD_NOT_VALID")
+		h.response.RespondError(c, http.StatusUnprocessableEntity, "PAYLOAD_NOT_VALID")
+		return
+	}
+
+	eventOwner, err := h.eventStore.GetEventOwner(id)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		h.response.RespondError(c, http.StatusUnprocessableEntity, "EVENT_NOT_EXIST")
+		return
+	}
+
+	if eventOwner != currentUserId {
+		h.response.RespondError(c, http.StatusForbidden, "ACCESS_DENIED")
 		return
 	}
 
@@ -63,12 +80,12 @@ func (handler *TicketHandler) CreateTicket(c *gin.Context) {
 		UserId:   c.GetString("userId"),
 	}
 
-	ticket, err = handler.ticketStore.CreateTicket(id, ticket)
+	ticket, err = h.ticketStore.CreateTicket(id, ticket)
 
 	if err != nil {
-		handler.response.RespondError(c, http.StatusInternalServerError, "FAILED_TO_CREATE_TICKET")
+		h.response.RespondError(c, http.StatusInternalServerError, "FAILED_TO_CREATE_TICKET")
 		return
 	}
 
-	handler.response.RespondSuccess(c, http.StatusCreated, messages.CreateTicketSuccess, ticket)
+	h.response.RespondSuccess(c, http.StatusCreated, messages.CreateTicketSuccess, ticket)
 }

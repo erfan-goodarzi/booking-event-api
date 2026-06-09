@@ -26,49 +26,92 @@ func NewPostgresEventStore(db *sql.DB) *PostgresEventStore {
 func (pg *PostgresEventStore) GetAllEvents() ([]models.Event, error) {
 	var events []models.Event
 
-	query := `
-	SELECT
-		id,
-		title,
-		description,
-		location,
-		date_time,
-		user_id,
-		created_at,
-		updated_at
-	FROM events
+	eventsQuery := `
+		SELECT
+			id,
+			title,
+			description,
+			location,
+			date_time,
+			user_id,
+			created_at,
+			updated_at
+		FROM events
+		ORDER BY id ASC
 	`
 
-	rows, err := pg.db.Query(query)
+	rows, err := pg.db.Query(eventsQuery)
 
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
 
+	eventsMap := make(map[string]*models.Event)
+	var order []string
+
 	for rows.Next() {
-		var event models.Event
+		var e models.Event
 
 		err := rows.Scan(
-			&event.ID,
-			&event.Title,
-			&event.Description,
-			&event.Location,
-			&event.DateTime,
-			&event.UserId,
-			&event.CreatedAt,
-			&event.UpdatedAt,
+			&e.ID, &e.Title, &e.Description, &e.Location, &e.DateTime, &e.UserId, &e.CreatedAt, &e.UpdatedAt,
 		)
 
 		if err != nil {
 			return nil, err
 		}
-		events = append(events, event)
+
+		e.Tickets = make([]models.Ticket, 0)
+		eventsMap[e.ID] = &e
+		order = append(order, e.ID)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
+	}
+
+	ticketsQuery := `
+		SELECT
+			id,
+			user_id,
+			event_id,
+			type,
+			price,
+			quantity,
+			created_at,
+			updated_at
+		FROM tickets
+	`
+
+	tRows, err := pg.db.Query(ticketsQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer tRows.Close()
+
+	for tRows.Next() {
+		var t models.Ticket
+
+		err := tRows.Scan(
+			&t.ID, &t.UserId, &t.EventId, &t.Type, &t.Price, &t.Quantity, &t.CreatedAt, &t.UpdatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if event, exists := eventsMap[t.EventId]; exists {
+			event.Tickets = append(event.Tickets, t)
+		}
+	}
+
+	if err := tRows.Err(); err != nil {
+		return nil, err
+	}
+
+	events = make([]models.Event, 0, len(order))
+	for _, id := range order {
+		events = append(events, *eventsMap[id])
 	}
 
 	return events, nil
