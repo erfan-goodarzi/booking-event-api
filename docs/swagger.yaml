@@ -161,6 +161,9 @@ definitions:
       description:
         example: Quarterly planning meeting
         type: string
+      duration:
+        example: 60
+        type: integer
       location:
         example: Conference Room A
         type: string
@@ -203,6 +206,10 @@ definitions:
       description:
         example: Quarterly planning meeting
         type: string
+      duration:
+        description: Duration in minutes
+        example: 60
+        type: integer
       id:
         example: e2f1c3a8-7d4b-11ec-90d6-0242ac120003
         type: string
@@ -235,6 +242,9 @@ definitions:
       description:
         example: Updated description
         type: string
+      duration:
+        example: 60
+        type: integer
       location:
         example: Room B
         type: string

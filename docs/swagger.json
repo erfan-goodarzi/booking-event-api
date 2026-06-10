@@ -759,6 +759,10 @@
                     "type": "string",
                     "example": "Quarterly planning meeting"
                 },
+                "duration": {
+                    "type": "integer",
+                    "example": 60
+                },
                 "location": {
                     "type": "string",
                     "example": "Conference Room A"
@@ -813,6 +817,11 @@
                     "type": "string",
                     "example": "Quarterly planning meeting"
                 },
+                "duration": {
+                    "description": "Duration in minutes",
+                    "type": "integer",
+                    "example": 60
+                },
                 "id": {
                     "type": "string",
                     "example": "e2f1c3a8-7d4b-11ec-90d6-0242ac120003"
@@ -856,6 +865,10 @@
                 "description": {
                     "type": "string",
                     "example": "Updated description"
+                },
+                "duration": {
+                    "type": "integer",
+                    "example": 60
                 },
                 "location": {
                     "type": "string",

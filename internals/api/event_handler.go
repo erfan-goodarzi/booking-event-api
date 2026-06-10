@@ -111,14 +111,12 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 		Location:    payload.Location,
 		DateTime:    payload.DateTime,
 		UserId:      c.GetString("userId"),
+		Duration:    *payload.Duration,
 	}
-
-	id := c.GetString("userId")
-	event.UserId = id
 
 	createdEvent, err := h.eventStore.CreateEvent(&event)
 	if err != nil {
-		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		h.response.RespondError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 

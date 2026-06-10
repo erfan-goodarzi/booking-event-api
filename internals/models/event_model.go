@@ -9,10 +9,12 @@ type Event struct {
 	Location    string    `json:"location" example:"Conference Room A"`
 	DateTime    time.Time `json:"dateTime" db:"date_time" swaggertype:"string" format:"date-time" example:"2026-06-07T15:04:05Z"`
 	UserId      string    `json:"userId" db:"user_id" example:"u12345"`
+	Tickets     []Ticket  `json:"tickets"`
+	Host        Host      `json:"host"`
+	TicketCount int       `json:"ticketCount,omitempty"`
+	Duration    int       `json:"duration" db:"duration" example:"60"` // Duration in minutes
 	CreatedAt   time.Time `json:"created_at" db:"created_at" swaggertype:"string" format:"date-time" example:"2026-06-07T15:04:05Z"`
 	UpdatedAt   time.Time `json:"updated_at" db:"updated_at" swaggertype:"string" format:"date-time" example:"2026-06-07T15:04:05Z"`
-	Tickets     []Ticket  `json:"tickets,omitempty"`
-	TicketCount int       `json:"ticketCount,omitempty"`
 }
 
 type CreateEventRequest struct {
@@ -20,6 +22,7 @@ type CreateEventRequest struct {
 	Description string    `json:"description" example:"Quarterly planning meeting"`
 	Location    string    `json:"location" validate:"required" example:"Conference Room A"`
 	DateTime    time.Time `json:"dateTime" validate:"required" swaggertype:"string" format:"date-time" example:"2026-06-07T15:04:05Z"`
+	Duration    *int      `json:"duration,omitempty" validate:"omitempty" example:"60"`
 }
 
 type PatchEventRequest struct {
@@ -27,4 +30,11 @@ type PatchEventRequest struct {
 	Description *string    `json:"description" validate:"omitempty" example:"Updated description"`
 	Location    *string    `json:"location" validate:"omitempty" example:"Room B"`
 	DateTime    *time.Time `json:"dateTime" validate:"omitempty" swaggertype:"string" format:"date-time" example:"2026-07-01T09:00:00Z"`
+	Duration    *int       `json:"duration,omitempty" validate:"omitempty" example:"60"`
+}
+
+type Host struct {
+	ID       string `json:"id" example:"u12345"`
+	Username string `json:"username" example:"john"`
+	Email    string `json:"email" example:"john@example.com"`
 }

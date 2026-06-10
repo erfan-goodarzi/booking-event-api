@@ -28,16 +28,21 @@ func (pg *PostgresEventStore) GetAllEvents() ([]models.Event, error) {
 
 	eventsQuery := `
 		SELECT
-			id,
-			title,
-			description,
-			location,
-			date_time,
-			user_id,
-			created_at,
-			updated_at
-		FROM events
-		ORDER BY id ASC
+    e.id,
+    e.title,
+    e.description,
+    e.location,
+    e.date_time,
+    e.user_id,
+    e.duration,
+    e.created_at,
+    e.updated_at,
+    u.id as host_id,
+    u.username as host_username,
+    u.email as host_email
+		FROM events e
+		JOIN users u ON u.id = e.user_id
+		ORDER BY e.created_at DESC
 	`
 
 	rows, err := pg.db.Query(eventsQuery)
@@ -54,7 +59,18 @@ func (pg *PostgresEventStore) GetAllEvents() ([]models.Event, error) {
 		var e models.Event
 
 		err := rows.Scan(
-			&e.ID, &e.Title, &e.Description, &e.Location, &e.DateTime, &e.UserId, &e.CreatedAt, &e.UpdatedAt,
+			&e.ID,
+			&e.Title,
+			&e.Description,
+			&e.Location,
+			&e.DateTime,
+			&e.UserId,
+			&e.Duration,
+			&e.CreatedAt,
+			&e.UpdatedAt,
+			&e.Host.ID,
+			&e.Host.Username,
+			&e.Host.Email,
 		)
 
 		if err != nil {
@@ -83,16 +99,16 @@ func (pg *PostgresEventStore) GetAllEvents() ([]models.Event, error) {
 		FROM tickets
 	`
 
-	tRows, err := pg.db.Query(ticketsQuery)
+	hRow, err := pg.db.Query(ticketsQuery)
 	if err != nil {
 		return nil, err
 	}
-	defer tRows.Close()
+	defer hRow.Close()
 
-	for tRows.Next() {
+	for hRow.Next() {
 		var t models.Ticket
 
-		err := tRows.Scan(
+		err := hRow.Scan(
 			&t.ID, &t.UserId, &t.EventId, &t.Type, &t.Price, &t.Quantity, &t.CreatedAt, &t.UpdatedAt,
 		)
 
@@ -105,7 +121,7 @@ func (pg *PostgresEventStore) GetAllEvents() ([]models.Event, error) {
 		}
 	}
 
-	if err := tRows.Err(); err != nil {
+	if err := hRow.Err(); err != nil {
 		return nil, err
 	}
 
@@ -122,16 +138,21 @@ func (pg *PostgresEventStore) GetEvent(id string) (*models.Event, error) {
 
 	query := `
 	SELECT
-		id,
-		title,
-		description,
-		location,
-		date_time,
-		user_id,
-		created_at,
-		updated_at
-		FROM events
-		WHERE id = $1 
+    e.id,
+    e.title,
+    e.description,
+    e.location,
+    e.date_time,
+    e.user_id,
+    e.duration,
+    e.created_at,
+    e.updated_at,
+    u.id as host_id,
+    u.username as host_username,
+    u.email as host_email
+		FROM events e
+		JOIN users u ON u.id = e.user_id
+		WHERE e.id = $1
 	`
 
 	row := pg.db.QueryRow(query, id)
@@ -143,11 +164,53 @@ func (pg *PostgresEventStore) GetEvent(id string) (*models.Event, error) {
 		&event.Location,
 		&event.DateTime,
 		&event.UserId,
+		&event.Duration,
 		&event.CreatedAt,
 		&event.UpdatedAt,
+		&event.Host.ID,
+		&event.Host.Username,
+		&event.Host.Email,
 	)
 
 	if err != nil {
+		return nil, err
+	}
+
+	ticketsQuery := `
+		SELECT
+			id,
+			user_id,
+			event_id,
+			type,
+			price,
+			quantity,
+			created_at,
+			updated_at
+		FROM tickets
+		WHERE event_id = $1
+	`
+
+	tRows, err := pg.db.Query(ticketsQuery, id)
+	if err != nil {
+		return nil, err
+	}
+	defer tRows.Close()
+
+	for tRows.Next() {
+		var t models.Ticket
+
+		err := tRows.Scan(
+			&t.ID, &t.UserId, &t.EventId, &t.Type, &t.Price, &t.Quantity, &t.CreatedAt, &t.UpdatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		event.Tickets = append(event.Tickets, t)
+	}
+
+	if err := tRows.Err(); err != nil {
 		return nil, err
 	}
 
@@ -163,11 +226,11 @@ func (pg *PostgresEventStore) CreateEvent(e *models.Event) (*models.Event, error
 	defer tx.Rollback()
 
 	query := `
-	INSERT INTO events(title, description, location, date_time, user_id)
-	VALUES ($1, $2, $3, $4, $5)
+	INSERT INTO events(title, description, location, date_time, user_id, duration)
+	VALUES ($1, $2, $3, $4, $5, $6)
 	RETURNING id, created_at, updated_at`
 
-	err = tx.QueryRow(query, e.Title, e.Description, e.Location, e.DateTime, e.UserId).Scan(&e.ID, &e.CreatedAt, &e.UpdatedAt)
+	err = tx.QueryRow(query, e.Title, e.Description, e.Location, e.DateTime, e.UserId, e.Duration).Scan(&e.ID, &e.CreatedAt, &e.UpdatedAt)
 
 	if err != nil {
 		return nil, err
@@ -191,12 +254,12 @@ func (pg *PostgresEventStore) UpdateEvent(e *models.Event) (*models.Event, error
 
 	query := `
 	UPDATE events
-	SET title = $1, description = $2, location = $3, updated_at = NOW()
-	WHERE id = $4
+	SET title = $1, description = $2, location = $3, duration = $4, updated_at = NOW()
+	WHERE id = $5
 	RETURNING updated_at
 	`
 
-	err = tx.QueryRow(query, e.Title, e.Description, e.Location, e.ID).Scan(&e.UpdatedAt)
+	err = tx.QueryRow(query, e.Title, e.Description, e.Location, e.Duration, e.ID).Scan(&e.UpdatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -225,6 +288,9 @@ func ApplyEventPatch(e *models.Event, p models.PatchEventRequest) error {
 	}
 	if p.DateTime != nil {
 		e.DateTime = *p.DateTime
+	}
+	if p.Duration != nil {
+		e.Duration = *p.Duration
 	}
 	return nil
 }
