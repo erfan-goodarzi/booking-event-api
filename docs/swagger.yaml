@@ -210,6 +210,8 @@ definitions:
         description: Duration in minutes
         example: 60
         type: integer
+      host:
+        $ref: '#/definitions/models.Host'
       id:
         example: e2f1c3a8-7d4b-11ec-90d6-0242ac120003
         type: string
@@ -231,6 +233,21 @@ definitions:
         type: string
       userId:
         example: u12345
+        type: string
+      version:
+        example: 1
+        type: integer
+    type: object
+  models.Host:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      id:
+        example: u12345
+        type: string
+      username:
+        example: john
         type: string
     type: object
   models.PatchEventRequest:

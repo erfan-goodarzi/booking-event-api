@@ -35,6 +35,7 @@ func (pg *PostgresEventStore) GetAllEvents() ([]models.Event, error) {
     e.date_time,
     e.user_id,
     e.duration,
+		e.version,
     e.created_at,
     e.updated_at,
     u.id as host_id,
@@ -66,6 +67,7 @@ func (pg *PostgresEventStore) GetAllEvents() ([]models.Event, error) {
 			&e.DateTime,
 			&e.UserId,
 			&e.Duration,
+			&e.Version,
 			&e.CreatedAt,
 			&e.UpdatedAt,
 			&e.Host.ID,
@@ -145,6 +147,7 @@ func (pg *PostgresEventStore) GetEvent(id string) (*models.Event, error) {
     e.date_time,
     e.user_id,
     e.duration,
+		e.version,
     e.created_at,
     e.updated_at,
     u.id as host_id,
@@ -165,6 +168,7 @@ func (pg *PostgresEventStore) GetEvent(id string) (*models.Event, error) {
 		&event.DateTime,
 		&event.UserId,
 		&event.Duration,
+		&event.Version,
 		&event.CreatedAt,
 		&event.UpdatedAt,
 		&event.Host.ID,
@@ -254,12 +258,12 @@ func (pg *PostgresEventStore) UpdateEvent(e *models.Event) (*models.Event, error
 
 	query := `
 	UPDATE events
-	SET title = $1, description = $2, location = $3, duration = $4, updated_at = NOW()
+	SET title = $1, description = $2, location = $3, duration = $4, updated_at = NOW(), version = version + 1
 	WHERE id = $5
-	RETURNING updated_at
+	RETURNING updated_at, version
 	`
 
-	err = tx.QueryRow(query, e.Title, e.Description, e.Location, e.Duration, e.ID).Scan(&e.UpdatedAt)
+	err = tx.QueryRow(query, e.Title, e.Description, e.Location, e.Duration, e.ID).Scan(&e.UpdatedAt, &e.Version)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

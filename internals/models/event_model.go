@@ -14,6 +14,7 @@ type Event struct {
 	TicketCount int       `json:"ticketCount,omitempty"`
 	Duration    int       `json:"duration" db:"duration" example:"60"` // Duration in minutes
 	CreatedAt   time.Time `json:"created_at" db:"created_at" swaggertype:"string" format:"date-time" example:"2026-06-07T15:04:05Z"`
+	Version     int       `json:"version" db:"version" example:"1"`
 	UpdatedAt   time.Time `json:"updated_at" db:"updated_at" swaggertype:"string" format:"date-time" example:"2026-06-07T15:04:05Z"`
 }
 

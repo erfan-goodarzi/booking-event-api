@@ -828,6 +828,9 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 60
                 },
+                "host": {
+                    "$ref": "#/definitions/models.Host"
+                },
                 "id": {
                     "type": "string",
                     "example": "e2f1c3a8-7d4b-11ec-90d6-0242ac120003"
@@ -857,6 +860,27 @@ const docTemplate = `{
                 "userId": {
                     "type": "string",
                     "example": "u12345"
+                },
+                "version": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "models.Host": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "john@example.com"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "u12345"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "john"
                 }
             }
         },
