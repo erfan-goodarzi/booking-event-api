@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/erfan-goodarzi/booking-event-api/internals/messages"
 	"github.com/erfan-goodarzi/booking-event-api/internals/models"
@@ -33,14 +34,33 @@ func NewEventHandler(eventStore store.EventStore, logger *log.Logger, response *
 // @Description Get all events
 // @Tags Events
 // @Produce json
+// @Param search query string false "Search"
+// @Param location query string false "Location"
+// @Param from query string false "Start Date"
+// @Param to query string false "End Date"
 // @Success 200 {object} api.EventListResponse
 // @Failure 500 {object} api.ErrorInternalServer
 // @Router /events [get]
 func (h *EventHandler) GetEvents(c *gin.Context) {
-	events, err := h.eventStore.GetAllEvents()
+	filter := models.EventFilter{
+		Search:   c.Query("search"),
+		Location: c.Query("location"),
+	}
+
+	from := c.Query("from")
+	if from != "" {
+		filter.From, _ = time.Parse(time.RFC3339, from)
+	}
+
+	to := c.Query("to")
+	if to != "" {
+		filter.To, _ = time.Parse(time.RFC3339, to)
+	}
+
+	events, err := h.eventStore.GetAllEvents(filter)
 
 	if err != nil {
-		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		h.response.RespondError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 

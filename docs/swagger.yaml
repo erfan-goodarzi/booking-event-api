@@ -464,6 +464,23 @@ paths:
   /events:
     get:
       description: Get all events
+      parameters:
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Location
+        in: query
+        name: location
+        type: string
+      - description: Start Date
+        in: query
+        name: from
+        type: string
+      - description: End Date
+        in: query
+        name: to
+        type: string
       produces:
       - application/json
       responses:

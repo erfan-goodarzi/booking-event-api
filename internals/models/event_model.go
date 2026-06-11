@@ -39,3 +39,10 @@ type Host struct {
 	Username string `json:"username" example:"john"`
 	Email    string `json:"email" example:"john@example.com"`
 }
+
+type EventFilter struct {
+	Search   string
+	Location string
+	From     time.Time
+	To       time.Time
+}

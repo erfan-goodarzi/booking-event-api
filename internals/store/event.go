@@ -2,12 +2,14 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
+	"strings"
 
 	"github.com/erfan-goodarzi/booking-event-api/internals/models"
 )
 
 type EventStore interface {
-	GetAllEvents() ([]models.Event, error)
+	GetAllEvents(filter models.EventFilter) ([]models.Event, error)
 	GetEvent(id string) (*models.Event, error)
 	CreateEvent(*models.Event) (*models.Event, error)
 	UpdateEvent(*models.Event) (*models.Event, error)
@@ -23,30 +25,54 @@ func NewPostgresEventStore(db *sql.DB) *PostgresEventStore {
 	return &PostgresEventStore{db: db}
 }
 
-func (pg *PostgresEventStore) GetAllEvents() ([]models.Event, error) {
+func (pg *PostgresEventStore) GetAllEvents(filter models.EventFilter) ([]models.Event, error) {
 	var events []models.Event
 
-	eventsQuery := `
-		SELECT
-    e.id,
-    e.title,
-    e.description,
-    e.location,
-    e.date_time,
-    e.user_id,
-    e.duration,
-		e.version,
-    e.created_at,
-    e.updated_at,
-    u.id as host_id,
-    u.username as host_username,
-    u.email as host_email
-		FROM events e
-		JOIN users u ON u.id = e.user_id
-		ORDER BY e.created_at DESC
-	`
+	args := []any{}
+	argIndex := 1
+	where := []string{}
 
-	rows, err := pg.db.Query(eventsQuery)
+	if filter.Search != "" {
+		where = append(where, fmt.Sprintf("e.title ILIKE $%d", argIndex))
+		args = append(args, "%"+filter.Search+"%")
+		argIndex++
+	}
+
+	if filter.Location != "" {
+		where = append(where, fmt.Sprintf("e.location ILIKE $%d", argIndex))
+		args = append(args, "%"+filter.Location+"%")
+		argIndex++
+	}
+
+	if !filter.From.IsZero() {
+		where = append(where, fmt.Sprintf("e.date_time >= $%d", argIndex))
+		args = append(args, filter.From)
+		argIndex++
+	}
+
+	if !filter.To.IsZero() {
+		where = append(where, fmt.Sprintf("e.date_time <= $%d", argIndex))
+		args = append(args, filter.To)
+		argIndex++
+	}
+
+	baseQuery := `
+    SELECT
+        e.id, e.title, e.description, e.location,
+        e.date_time, e.user_id, e.duration, e.version,
+        e.created_at, e.updated_at,
+        u.id, u.username, u.email
+    FROM events e
+    JOIN users u ON u.id = e.user_id
+    `
+
+	if len(where) > 0 {
+		baseQuery += " WHERE " + strings.Join(where, " AND ")
+	}
+
+	baseQuery += " ORDER BY e.created_at DESC"
+
+	rows, err := pg.db.Query(baseQuery, args...)
 
 	if err != nil {
 		return nil, err
