@@ -19,12 +19,11 @@ type Booking struct {
 	UpdatedAt time.Time     `json:"updated_at" db:"updated_at" swaggertype:"string" format:"date-time" example:"2026-06-07T15:04:05Z"`
 }
 
-type CreateBookingRequest struct {
-	UserId   string        `json:"userId" validate:"required" example:"u12345"`
-	TicketId string        `json:"ticketId" validate:"required" example:"t12345"`
-	Status   bookingStatus `json:"status" validate:"required oneof=pending confirmed cancelled" example:"pending"`
+type PatchBookingRequest struct {
+	Status *bookingStatus `json:"status" validate:"required,oneof=pending confirmed cancelled" example:"pending"`
 }
 
-type PatchBookingRequest struct {
-	Status *bookingStatus `json:"status" validate:"omitempty oneof=pending confirmed cancelled" example:"pending"`
+type BookingResponse struct {
+	Data    Booking `json:"data"`
+	Message string  `json:"message"`
 }

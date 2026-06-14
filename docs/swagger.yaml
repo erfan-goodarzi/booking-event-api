@@ -39,6 +39,13 @@ definitions:
         example: u12345
         type: string
     type: object
+  models.BookingResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Booking'
+      message:
+        type: string
+    type: object
   models.CreateEventRequest:
     properties:
       dateTime:
@@ -75,10 +82,14 @@ definitions:
       type:
         allOf:
         - $ref: '#/definitions/models.TicketType'
+        enum:
+        - vip
+        - general
         example: vip
     required:
     - price
     - quantity
+    - type
     type: object
   models.ErrorBadRequest:
     properties:
@@ -242,6 +253,19 @@ definitions:
       message:
         example: user logged out successfully
         type: string
+    type: object
+  models.PatchBookingRequest:
+    properties:
+      status:
+        allOf:
+        - $ref: '#/definitions/models.bookingStatus'
+        enum:
+        - pending
+        - confirmed
+        - cancelled
+        example: pending
+    required:
+    - status
     type: object
   models.PatchEventRequest:
     properties:
@@ -657,10 +681,10 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.TicketResponse'
-        "400":
-          description: Bad Request
+        "404":
+          description: Not Found
           schema:
-            $ref: '#/definitions/models.ErrorBadRequest'
+            $ref: '#/definitions/models.ErrorNotFound'
         "422":
           description: Unprocessable Entity
           schema:
@@ -672,6 +696,70 @@ paths:
       security:
       - BearerAuth: []
       summary: Create a ticket
+      tags:
+      - Events
+  /events/tickets/{id}/register:
+    post:
+      consumes:
+      - application/json
+      description: Book a new ticket
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BookingResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorNotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorInternalServer'
+      summary: Book an event
+      tags:
+      - Events
+  /events/tickets/register/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: update the status of registered ticket
+      parameters:
+      - description: registration ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Patch payload
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/models.PatchBookingRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BookingResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorNotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorInternalServer'
+      summary: Update registration status
       tags:
       - Events
   /health:

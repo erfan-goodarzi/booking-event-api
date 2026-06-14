@@ -22,7 +22,7 @@ type Ticket struct {
 }
 
 type CreateTicketRequest struct {
-	Type     TicketType `json:"type" validate:"required oneof=vip general" example:"vip"`
+	Type     TicketType `json:"type" validate:"required,oneof=vip general" example:"vip"`
 	Price    float64    `json:"price" validate:"required,gt=0" example:"99.99"`
 	Quantity int        `json:"quantity" validate:"required,gt=0" example:"2"`
 }

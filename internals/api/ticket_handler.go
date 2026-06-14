@@ -10,6 +10,7 @@ import (
 	"github.com/erfan-goodarzi/booking-event-api/internals/models"
 	"github.com/erfan-goodarzi/booking-event-api/internals/store"
 	"github.com/erfan-goodarzi/booking-event-api/pkg/apiUtils"
+	"github.com/erfan-goodarzi/booking-event-api/pkg/validation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -39,8 +40,8 @@ func NewTicketHandler(ticketStore store.TicketStore, eventStore store.EventStore
 // @Param id path string true "Event ID"
 // @Param ticket body models.CreateTicketRequest true "Ticket payload"
 // @Success 201 {object} models.TicketResponse
-// @Failure 400 {object} models.ErrorBadRequest
 // @Failure 422 {object} models.ErrorBadRequest
+// @Failure 404 {object} models.ErrorNotFound
 // @Failure 500 {object} models.ErrorInternalServer
 // @Router /events/{id}/tickets [post]
 func (h *TicketHandler) CreateTicket(c *gin.Context) {
@@ -80,10 +81,17 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 		UserId:   c.GetString("userId"),
 	}
 
+	err = validation.Validate.Struct(payload)
+
+	if err != nil {
+		h.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
+		return
+	}
+
 	ticket, err = h.ticketStore.CreateTicket(id, ticket)
 
 	if err != nil {
-		h.response.RespondError(c, http.StatusInternalServerError, "FAILED_TO_CREATE_TICKET")
+		h.response.RespondError(c, http.StatusInternalServerError, "FAILED_TO_REGISTER")
 		return
 	}
 

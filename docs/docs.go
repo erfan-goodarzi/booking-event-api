@@ -290,6 +290,103 @@ const docTemplate = `{
                 }
             }
         },
+        "/events/tickets/register/{id}/status": {
+            "put": {
+                "description": "update the status of registered ticket",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Update registration status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "registration ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Patch payload",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PatchBookingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.BookingResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorNotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorInternalServer"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/tickets/{id}/register": {
+            "post": {
+                "description": "Book a new ticket",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Book an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Ticket ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.BookingResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorNotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorInternalServer"
+                        }
+                    }
+                }
+            }
+        },
         "/events/{id}": {
             "get": {
                 "description": "Get an event by its ID",
@@ -492,10 +589,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.TicketResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorBadRequest"
+                            "$ref": "#/definitions/models.ErrorNotFound"
                         }
                     },
                     "422": {
@@ -601,6 +698,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.BookingResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.Booking"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "models.CreateEventRequest": {
             "type": "object",
             "required": [
@@ -638,7 +746,8 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "price",
-                "quantity"
+                "quantity",
+                "type"
             ],
             "properties": {
                 "price": {
@@ -650,6 +759,10 @@ const docTemplate = `{
                     "example": 2
                 },
                 "type": {
+                    "enum": [
+                        "vip",
+                        "general"
+                    ],
                     "allOf": [
                         {
                             "$ref": "#/definitions/models.TicketType"
@@ -890,6 +1003,27 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "user logged out successfully"
+                }
+            }
+        },
+        "models.PatchBookingRequest": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "enum": [
+                        "pending",
+                        "confirmed",
+                        "cancelled"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.bookingStatus"
+                        }
+                    ],
+                    "example": "pending"
                 }
             }
         },

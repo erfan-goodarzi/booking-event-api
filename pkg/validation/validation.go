@@ -17,7 +17,14 @@ func FormatValidationErrors(err error) map[string]string {
 	var validationErrors validator.ValidationErrors
 	if errors.As(err, &validationErrors) {
 		for _, e := range validationErrors {
-			fields[e.Field()] = e.Tag()
+			switch e.Tag() {
+			case "required":
+				fields[e.Field()] = "is required"
+			case "oneof":
+				fields[e.Field()] = "must be one of: " + e.Param()
+			default:
+				fields[e.Field()] = e.Tag()
+			}
 		}
 	}
 	return fields

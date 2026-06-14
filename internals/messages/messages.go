@@ -9,4 +9,6 @@ const (
 	Refresh             = "token refreshed successfully"
 	Logout              = "user logged out successfully"
 	CreateTicketSuccess = "Ticket created successfully"
+	RegisterSuccess     = "Ticket booked successfully"
+	RegisterStatusSuccess     = "registration status updated successfully"
 )

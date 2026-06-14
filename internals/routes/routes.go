@@ -19,6 +19,8 @@ func RegisterRoutes(app *app.Application) *gin.Engine {
 	{
 		events.GET("", app.Handlers.Event.GetEvents)
 		events.GET("/:id", app.Handlers.Event.GetEvent)
+		events.POST("/tickets/:id/register", app.Handlers.Booking.RegisterEvent)
+		events.PUT("/tickets/register/:id/status", app.Handlers.Booking.UpdateRegistrationStatus)
 	}
 
 	protectedEvents := protectedRoute.Group("/events")

@@ -60,7 +60,7 @@ func (h *EventHandler) GetEvents(c *gin.Context) {
 	events, err := h.eventStore.GetAllEvents(filter)
 
 	if err != nil {
-		h.response.RespondError(c, http.StatusInternalServerError, err.Error())
+		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 
@@ -135,7 +135,7 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 
 	createdEvent, err := h.eventStore.CreateEvent(&event)
 	if err != nil {
-		h.response.RespondError(c, http.StatusInternalServerError, err.Error())
+		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
 	}
 
