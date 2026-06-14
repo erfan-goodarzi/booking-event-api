@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Event struct {
 	ID          string    `json:"id" example:"e2f1c3a8-7d4b-11ec-90d6-0242ac120003"`
@@ -45,4 +47,18 @@ type EventFilter struct {
 	Location string
 	From     time.Time
 	To       time.Time
+}
+
+type EventDeleteSuccess struct {
+	Message string `json:"message" example:"Event deleted successfully"`
+}
+
+type EventResponse struct {
+	Data    Event  `json:"data"`
+	Message string `json:"message"`
+}
+
+type EventListResponse struct {
+	Data    []Event `json:"data"`
+	Message string  `json:"message"`
 }

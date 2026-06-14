@@ -38,10 +38,10 @@ func NewTicketHandler(ticketStore store.TicketStore, eventStore store.EventStore
 // @Security BearerAuth
 // @Param id path string true "Event ID"
 // @Param ticket body models.CreateTicketRequest true "Ticket payload"
-// @Success 201 {object} api.TicketResponse
-// @Failure 400 {object} api.ErrorBadRequest
-// @Failure 422 {object} api.ErrorValidation
-// @Failure 500 {object} api.ErrorInternalServer
+// @Success 201 {object} models.TicketResponse
+// @Failure 400 {object} models.ErrorBadRequest
+// @Failure 422 {object} models.ErrorBadRequest
+// @Failure 500 {object} models.ErrorInternalServer
 // @Router /events/{id}/tickets [post]
 func (h *TicketHandler) CreateTicket(c *gin.Context) {
 	var payload models.CreateTicketRequest

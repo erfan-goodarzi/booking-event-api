@@ -35,9 +35,9 @@ func NewUserHandler(userStore store.UserStore, logger *log.Logger, response *API
 // @Produce json
 // @Param user body models.User true "User signup payload"
 // @Success 201 {object} models.User
-// @Failure 409 {object} api.ErrorConflict
-// @Failure 422 {object} api.ErrorValidation
-// @Failure 500 {object} api.ErrorInternalServer
+// @Failure 409 {object} models.ErrorConflict
+// @Failure 422 {object} models.ErrorValidation
+// @Failure 500 {object} models.ErrorInternalServer
 // @Router /auth/signup [post]
 func (h *UserHandler) Signup(c *gin.Context) {
 	var user models.User
@@ -79,10 +79,10 @@ func (h *UserHandler) Signup(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param credentials body models.User true "Login credentials (email and password)"
-// @Success 200 {object} api.LoginResponse
-// @Failure 401 {object} api.ErrorUnauthorized
-// @Failure 500 {object} api.ErrorInternalServer
-// @Failure 422 {object} api.ErrorValidation
+// @Success 200 {object} models.LoginResponse
+// @Failure 401 {object} models.ErrorUnauthorized
+// @Failure 500 {object} models.ErrorInternalServer
+// @Failure 422 {object} models.ErrorValidation
 // @Router /auth/login [post]
 func (h *UserHandler) Login(c *gin.Context) {
 	var user models.User
@@ -134,9 +134,9 @@ func (h *UserHandler) Login(c *gin.Context) {
 // @Description Exchange refresh cookie for a new access token
 // @Tags Auth
 // @Produce json
-// @Success 200 {object} api.LoginResponse
-// @Failure 401 {object} api.ErrorUnauthorized
-// @Failure 500 {object} api.ErrorInternalServer
+// @Success 200 {object} models.LoginResponse
+// @Failure 401 {object} models.ErrorUnauthorized
+// @Failure 500 {object} models.ErrorInternalServer
 // @Router /auth/refresh [post]
 func (h *UserHandler) Refresh(c *gin.Context) {
 	refreshToken, err := c.Cookie("refresh_token")
@@ -178,9 +178,9 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 // @Description Invalidate refresh token and clear cookie
 // @Tags Auth
 // @Produce json
-// @Success 200 {object} api.LogoutResponse
-// @Failure 401 {object} api.ErrorUnauthorized
-// @Failure 500 {object} api.ErrorInternalServer
+// @Success 200 {object} models.LogoutResponse
+// @Failure 401 {object} models.ErrorUnauthorized
+// @Failure 500 {object} models.ErrorInternalServer
 // @Router /auth/logout [post]
 func (h *UserHandler) Logout(c *gin.Context) {
 	refreshToken, err := c.Cookie("refresh_token")

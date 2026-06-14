@@ -38,8 +38,8 @@ func NewEventHandler(eventStore store.EventStore, logger *log.Logger, response *
 // @Param location query string false "Location"
 // @Param from query string false "Start Date"
 // @Param to query string false "End Date"
-// @Success 200 {object} api.EventListResponse
-// @Failure 500 {object} api.ErrorInternalServer
+// @Success 200 {object} models.EventListResponse
+// @Failure 500 {object} models.ErrorInternalServer
 // @Router /events [get]
 func (h *EventHandler) GetEvents(c *gin.Context) {
 	filter := models.EventFilter{
@@ -73,10 +73,9 @@ func (h *EventHandler) GetEvents(c *gin.Context) {
 // @Tags Events
 // @Produce json
 // @Param id path string true "Event ID"
-// @Success 200 {object} api.EventResponse
-// @Failure 400 {object} api.ErrorBadRequest
-// @Failure 404 {object} api.ErrorNotFound
-// @Failure 500 {object} api.ErrorInternalServer
+// @Success 200 {object} models.EventResponse
+// @Failure 404 {object} models.ErrorNotFound
+// @Failure 500 {object} models.ErrorInternalServer
 // @Router /events/{id} [get]
 func (h *EventHandler) GetEvent(c *gin.Context) {
 	id, err := apiUtils.ParseID(c)
@@ -105,9 +104,9 @@ func (h *EventHandler) GetEvent(c *gin.Context) {
 // @Security BearerAuth
 // @Param event body models.CreateEventRequest true "Event payload"
 // @Success 201 {object} models.Event
-// @Failure 401 {object} api.ErrorUnauthorized
-// @Failure 422 {object} api.ErrorValidation
-// @Failure 500 {object} api.ErrorInternalServer
+// @Failure 401 {object} models.ErrorUnauthorized
+// @Failure 422 {object} models.ErrorBadRequest
+// @Failure 500 {object} models.ErrorInternalServer
 // @Router /events [post]
 func (h *EventHandler) CreateEvent(c *gin.Context) {
 	var payload models.CreateEventRequest
@@ -153,10 +152,10 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 // @Param id path string true "Event ID"
 // @Param event body models.PatchEventRequest true "Patch payload"
 // @Success 200 {object} models.Event
-// @Failure 401 {object} api.ErrorUnauthorized
-// @Failure 403 {object} api.ErrorForbidden
-// @Failure 404 {object} api.ErrorNotFound
-// @Failure 422 {object} api.ErrorValidation
+// @Failure 401 {object} models.ErrorUnauthorized
+// @Failure 403 {object} models.ErrorForbidden
+// @Failure 404 {object} models.ErrorNotFound
+// @Failure 422 {object} models.ErrorBadRequest
 // @Router /events/{id} [put]
 func (h *EventHandler) UpdateEvent(c *gin.Context) {
 	id, err := apiUtils.ParseID(c)
@@ -226,10 +225,10 @@ func (h *EventHandler) UpdateEvent(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path string true "Event ID"
-// @Success 200 {object} api.EventDeleteSuccess
-// @Failure 401 {object} api.ErrorUnauthorized
-// @Failure 403 {object} api.ErrorForbidden
-// @Failure 422 {object} api.ErrorValidation
+// @Success 200 {object} models.EventDeleteSuccess
+// @Failure 401 {object} models.ErrorUnauthorized
+// @Failure 403 {object} models.ErrorForbidden
+// @Failure 422 {object} models.ErrorBadRequest
 // @Router /events/{id} [delete]
 func (h *EventHandler) DeleteEvent(c *gin.Context) {
 	id, err := apiUtils.ParseID(c)

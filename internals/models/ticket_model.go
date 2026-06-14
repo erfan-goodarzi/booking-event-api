@@ -32,3 +32,8 @@ type PatchTicketRequest struct {
 	Price    *float64    `json:"price" validate:"omitempty,gt=0" example:"99.99"`
 	Quantity *int        `json:"quantity" validate:"omitempty,gt=0" example:"2"`
 }
+
+type TicketResponse struct {
+	Data    Ticket `json:"data"`
+	Message string `json:"message"`
+}

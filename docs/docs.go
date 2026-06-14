@@ -43,25 +43,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.LoginResponse"
+                            "$ref": "#/definitions/models.LoginResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorUnauthorized"
+                            "$ref": "#/definitions/models.ErrorUnauthorized"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorValidation"
+                            "$ref": "#/definitions/models.ErrorValidation"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorInternalServer"
+                            "$ref": "#/definitions/models.ErrorInternalServer"
                         }
                     }
                 }
@@ -81,19 +81,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.LogoutResponse"
+                            "$ref": "#/definitions/models.LogoutResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorUnauthorized"
+                            "$ref": "#/definitions/models.ErrorUnauthorized"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorInternalServer"
+                            "$ref": "#/definitions/models.ErrorInternalServer"
                         }
                     }
                 }
@@ -113,19 +113,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.LoginResponse"
+                            "$ref": "#/definitions/models.LoginResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorUnauthorized"
+                            "$ref": "#/definitions/models.ErrorUnauthorized"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorInternalServer"
+                            "$ref": "#/definitions/models.ErrorInternalServer"
                         }
                     }
                 }
@@ -165,19 +165,19 @@ const docTemplate = `{
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorConflict"
+                            "$ref": "#/definitions/models.ErrorConflict"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorValidation"
+                            "$ref": "#/definitions/models.ErrorValidation"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorInternalServer"
+                            "$ref": "#/definitions/models.ErrorInternalServer"
                         }
                     }
                 }
@@ -223,13 +223,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.EventListResponse"
+                            "$ref": "#/definitions/models.EventListResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorInternalServer"
+                            "$ref": "#/definitions/models.ErrorInternalServer"
                         }
                     }
                 }
@@ -272,19 +272,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorUnauthorized"
+                            "$ref": "#/definitions/models.ErrorUnauthorized"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorValidation"
+                            "$ref": "#/definitions/models.ErrorBadRequest"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorInternalServer"
+                            "$ref": "#/definitions/models.ErrorInternalServer"
                         }
                     }
                 }
@@ -313,25 +313,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.EventResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorBadRequest"
+                            "$ref": "#/definitions/models.EventResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorNotFound"
+                            "$ref": "#/definitions/models.ErrorNotFound"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorInternalServer"
+                            "$ref": "#/definitions/models.ErrorInternalServer"
                         }
                     }
                 }
@@ -381,25 +375,25 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorUnauthorized"
+                            "$ref": "#/definitions/models.ErrorUnauthorized"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorForbidden"
+                            "$ref": "#/definitions/models.ErrorForbidden"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorNotFound"
+                            "$ref": "#/definitions/models.ErrorNotFound"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorValidation"
+                            "$ref": "#/definitions/models.ErrorBadRequest"
                         }
                     }
                 }
@@ -431,25 +425,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.EventDeleteSuccess"
+                            "$ref": "#/definitions/models.EventDeleteSuccess"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorUnauthorized"
+                            "$ref": "#/definitions/models.ErrorUnauthorized"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorForbidden"
+                            "$ref": "#/definitions/models.ErrorForbidden"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorValidation"
+                            "$ref": "#/definitions/models.ErrorBadRequest"
                         }
                     }
                 }
@@ -495,25 +489,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/api.TicketResponse"
+                            "$ref": "#/definitions/models.TicketResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorBadRequest"
+                            "$ref": "#/definitions/models.ErrorBadRequest"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorValidation"
+                            "$ref": "#/definitions/models.ErrorBadRequest"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.ErrorInternalServer"
+                            "$ref": "#/definitions/models.ErrorInternalServer"
                         }
                     }
                 }
@@ -550,140 +544,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "api.ErrorBadRequest": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "PAYLOAD_NOT_VALID"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Bad Request"
-                }
-            }
-        },
-        "api.ErrorConflict": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "EMAIL_ALREADY_EXISTS"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Conflict"
-                }
-            }
-        },
-        "api.ErrorForbidden": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "ACCESS_DENIED"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Forbidden"
-                }
-            }
-        },
-        "api.ErrorInternalServer": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "UNKNOWN_ERROR"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Internal Server Error"
-                }
-            }
-        },
-        "api.ErrorNotFound": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "EVENT_NOT_FOUND"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Not Found"
-                }
-            }
-        },
-        "api.ErrorUnauthorized": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "INVALID_CREDENTIALS"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Unauthorized"
-                }
-            }
-        },
-        "api.ErrorValidation": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "VALIDATION_FAILED"
-                },
-                "fields": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    },
-                    "example": {
-                        "{\"email\"": " \"invalid email format\"}"
-                    }
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Validation Failed"
-                }
-            }
-        },
-        "api.EventDeleteSuccess": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "example": "Event deleted successfully"
-                }
-            }
-        },
-        "api.EventListResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Event"
-                    }
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "api.EventResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/models.Event"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "api.HealthCheckErrorResponse": {
             "type": "object",
             "properties": {
@@ -703,39 +563,6 @@ const docTemplate = `{
                 "status": {
                     "type": "string",
                     "example": "ok"
-                }
-            }
-        },
-        "api.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "example": "user logged in successfully"
-                },
-                "token": {
-                    "type": "string",
-                    "example": "eyJhbGci..."
-                }
-            }
-        },
-        "api.LogoutResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "example": "user logged out successfully"
-                }
-            }
-        },
-        "api.TicketResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/models.Ticket"
-                },
-                "message": {
-                    "type": "string"
                 }
             }
         },
@@ -832,6 +659,106 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ErrorBadRequest": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "PAYLOAD_NOT_VALID"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Bad Request"
+                }
+            }
+        },
+        "models.ErrorConflict": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "EMAIL_ALREADY_EXISTS"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Conflict"
+                }
+            }
+        },
+        "models.ErrorForbidden": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "ACCESS_DENIED"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Forbidden"
+                }
+            }
+        },
+        "models.ErrorInternalServer": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "UNKNOWN_ERROR"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Internal Server Error"
+                }
+            }
+        },
+        "models.ErrorNotFound": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "EVENT_NOT_FOUND"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Not Found"
+                }
+            }
+        },
+        "models.ErrorUnauthorized": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "INVALID_CREDENTIALS"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Unauthorized"
+                }
+            }
+        },
+        "models.ErrorValidation": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "VALIDATION_FAILED"
+                },
+                "fields": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "example": {
+                        "{\"email\"": " \"invalid email format\"}"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Validation Failed"
+                }
+            }
+        },
         "models.Event": {
             "type": "object",
             "properties": {
@@ -893,6 +820,40 @@ const docTemplate = `{
                 }
             }
         },
+        "models.EventDeleteSuccess": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Event deleted successfully"
+                }
+            }
+        },
+        "models.EventListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Event"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.EventResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.Event"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Host": {
             "type": "object",
             "properties": {
@@ -907,6 +868,28 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "john"
+                }
+            }
+        },
+        "models.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "user logged in successfully"
+                },
+                "token": {
+                    "type": "string",
+                    "example": "eyJhbGci..."
+                }
+            }
+        },
+        "models.LogoutResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "user logged out successfully"
                 }
             }
         },
@@ -984,6 +967,17 @@ const docTemplate = `{
                 "userId": {
                     "type": "string",
                     "example": "u12345"
+                }
+            }
+        },
+        "models.TicketResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.Ticket"
+                },
+                "message": {
+                    "type": "string"
                 }
             }
         },
