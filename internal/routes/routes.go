@@ -2,8 +2,8 @@ package routes
 
 import (
 	_ "github.com/erfan-goodarzi/booking-event-api/docs"
-	"github.com/erfan-goodarzi/booking-event-api/internals/app"
-	"github.com/erfan-goodarzi/booking-event-api/internals/middlewares"
+	"github.com/erfan-goodarzi/booking-event-api/internal/app"
+	"github.com/erfan-goodarzi/booking-event-api/internal/middlewares"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"

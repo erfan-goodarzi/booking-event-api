@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/erfan-goodarzi/booking-event-api/internals/api"
+	"github.com/erfan-goodarzi/booking-event-api/internal/api"
 	"github.com/erfan-goodarzi/booking-event-api/pkg/apiUtils"
 	"github.com/gin-gonic/gin"
 )

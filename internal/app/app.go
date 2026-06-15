@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/erfan-goodarzi/booking-event-api/internals/api"
-	"github.com/erfan-goodarzi/booking-event-api/internals/db"
-	"github.com/erfan-goodarzi/booking-event-api/internals/store"
+	"github.com/erfan-goodarzi/booking-event-api/internal/api"
+	"github.com/erfan-goodarzi/booking-event-api/internal/db"
+	"github.com/erfan-goodarzi/booking-event-api/internal/store"
 	"github.com/erfan-goodarzi/booking-event-api/migrations"
 	"github.com/gin-gonic/gin"
 )

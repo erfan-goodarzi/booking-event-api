@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/erfan-goodarzi/booking-event-api/internals/models"
+	"github.com/erfan-goodarzi/booking-event-api/internal/models"
 )
 
 type EventStore interface {

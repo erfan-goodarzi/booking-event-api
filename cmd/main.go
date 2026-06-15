@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/erfan-goodarzi/booking-event-api/internals/app"
-	"github.com/erfan-goodarzi/booking-event-api/internals/routes"
+	"github.com/erfan-goodarzi/booking-event-api/internal/app"
+	"github.com/erfan-goodarzi/booking-event-api/internal/routes"
 	"github.com/joho/godotenv"
 )
 
