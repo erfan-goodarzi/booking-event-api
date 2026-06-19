@@ -57,7 +57,7 @@ func (h *EventHandler) GetEvents(c *gin.Context) {
 		filter.To, _ = time.Parse(time.RFC3339, to)
 	}
 
-	events, err := h.eventStore.GetAllEvents(filter)
+	events, err := h.eventStore.GetAll(filter)
 
 	if err != nil {
 		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
@@ -85,7 +85,7 @@ func (h *EventHandler) GetEvent(c *gin.Context) {
 		return
 	}
 
-	event, err := h.eventStore.GetEvent(id)
+	event, err := h.eventStore.GetById(id)
 
 	if err != nil {
 		h.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
@@ -133,7 +133,7 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 		Duration:    *payload.Duration,
 	}
 
-	createdEvent, err := h.eventStore.CreateEvent(&event)
+	createdEvent, err := h.eventStore.Create(&event)
 	if err != nil {
 		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
 		return
@@ -166,7 +166,7 @@ func (h *EventHandler) UpdateEvent(c *gin.Context) {
 		return
 	}
 
-	existingEvent, err := h.eventStore.GetEvent(id)
+	existingEvent, err := h.eventStore.GetById(id)
 
 	if err != nil {
 		h.response.RespondError(c, http.StatusNotFound, "EVENT_NOT_FOUND")
@@ -194,7 +194,7 @@ func (h *EventHandler) UpdateEvent(c *gin.Context) {
 		return
 	}
 
-	eventOwner, err := h.eventStore.GetEventOwner(id)
+	eventOwner, err := h.eventStore.GetOwner(id)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		h.response.RespondError(c, http.StatusUnprocessableEntity, "EVENT_NOT_EXIST")
@@ -208,7 +208,7 @@ func (h *EventHandler) UpdateEvent(c *gin.Context) {
 
 	store.ApplyEventPatch(existingEvent, partialEvent)
 
-	updatedEvent, err := h.eventStore.UpdateEvent(existingEvent)
+	updatedEvent, err := h.eventStore.Update(existingEvent)
 
 	if err != nil {
 		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
@@ -239,7 +239,7 @@ func (h *EventHandler) DeleteEvent(c *gin.Context) {
 		return
 	}
 
-	eventOwner, err := h.eventStore.GetEventOwner(id)
+	eventOwner, err := h.eventStore.GetOwner(id)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		h.response.RespondError(c, http.StatusUnprocessableEntity, "EVENT_NOT_EXIST")
@@ -251,7 +251,7 @@ func (h *EventHandler) DeleteEvent(c *gin.Context) {
 		return
 	}
 
-	err = h.eventStore.DeleteEvent(id)
+	err = h.eventStore.Delete(id)
 
 	if err != nil {
 		h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")

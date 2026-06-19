@@ -145,7 +145,7 @@ func (h *UserHandler) Refresh(c *gin.Context) {
 		return
 	}
 
-	user, err := h.user.GetUserByRefreshToken(refreshToken)
+	user, err := h.user.GetByRefreshToken(refreshToken)
 	if err != nil {
 		h.response.RespondError(c, http.StatusUnauthorized, "INVALID_REFRESH_TOKEN")
 		return

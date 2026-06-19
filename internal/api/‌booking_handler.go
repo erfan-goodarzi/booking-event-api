@@ -53,7 +53,7 @@ func (h *BookingHandler) RegisterEvent(c *gin.Context) {
 		Status:   models.BookingStatusPending,
 	}
 
-	booking, err = h.bookingStore.CreateBooking(id, booking)
+	booking, err = h.bookingStore.Create(id, booking)
 
 	if err != nil {
 		h.response.RespondError(c, http.StatusInternalServerError, "FAILED_TO_REGISTER")
@@ -103,7 +103,7 @@ func (h *BookingHandler) UpdateRegistrationStatus(c *gin.Context) {
 
 	store.ApplyRegistrationPatch(booking, partialBooking)
 
-	booking, err = h.bookingStore.UpdateBookingStatus(id, booking)
+	booking, err = h.bookingStore.UpdateStatus(id, booking)
 
 	if err != nil {
 		h.response.RespondError(c, http.StatusInternalServerError, "FAILED_TO_UPDATE_STATUS")

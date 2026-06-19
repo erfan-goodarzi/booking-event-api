@@ -9,12 +9,12 @@ import (
 )
 
 type EventStore interface {
-	GetAllEvents(filter models.EventFilter) ([]models.Event, error)
-	GetEvent(id string) (*models.Event, error)
-	CreateEvent(*models.Event) (*models.Event, error)
-	UpdateEvent(*models.Event) (*models.Event, error)
-	DeleteEvent(id string) error
-	GetEventOwner(eventId string) (string, error)
+	GetAll(filter models.EventFilter) ([]models.Event, error)
+	GetById(id string) (*models.Event, error)
+	Create(*models.Event) (*models.Event, error)
+	Update(*models.Event) (*models.Event, error)
+	Delete(id string) error
+	GetOwner(eventId string) (string, error)
 }
 
 type PostgresEventStore struct {
@@ -25,7 +25,7 @@ func NewPostgresEventStore(db *sql.DB) *PostgresEventStore {
 	return &PostgresEventStore{db: db}
 }
 
-func (pg *PostgresEventStore) GetAllEvents(filter models.EventFilter) ([]models.Event, error) {
+func (pg *PostgresEventStore) GetAll(filter models.EventFilter) ([]models.Event, error) {
 	var events []models.Event
 
 	args := []any{}
@@ -161,7 +161,7 @@ func (pg *PostgresEventStore) GetAllEvents(filter models.EventFilter) ([]models.
 	return events, nil
 }
 
-func (pg *PostgresEventStore) GetEvent(id string) (*models.Event, error) {
+func (pg *PostgresEventStore) GetById(id string) (*models.Event, error) {
 	var event models.Event
 
 	query := `
@@ -247,7 +247,7 @@ func (pg *PostgresEventStore) GetEvent(id string) (*models.Event, error) {
 	return &event, nil
 }
 
-func (pg *PostgresEventStore) CreateEvent(e *models.Event) (*models.Event, error) {
+func (pg *PostgresEventStore) Create(e *models.Event) (*models.Event, error) {
 	tx, err := pg.db.Begin()
 
 	if err != nil {
@@ -274,7 +274,7 @@ func (pg *PostgresEventStore) CreateEvent(e *models.Event) (*models.Event, error
 	return e, nil
 }
 
-func (pg *PostgresEventStore) UpdateEvent(e *models.Event) (*models.Event, error) {
+func (pg *PostgresEventStore) Update(e *models.Event) (*models.Event, error) {
 	tx, err := pg.db.Begin()
 
 	if err != nil {
@@ -325,7 +325,7 @@ func ApplyEventPatch(e *models.Event, p models.PatchEventRequest) error {
 	return nil
 }
 
-func (pg *PostgresEventStore) DeleteEvent(id string) error {
+func (pg *PostgresEventStore) Delete(id string) error {
 	query := `DELETE FROM events WHERE id = $1`
 
 	stmt, err := pg.db.Prepare(query)
@@ -351,7 +351,7 @@ func (pg *PostgresEventStore) DeleteEvent(id string) error {
 	return nil
 }
 
-func (pg *PostgresEventStore) GetEventOwner(eventId string) (string, error) {
+func (pg *PostgresEventStore) GetOwner(eventId string) (string, error) {
 	var userID string
 
 	query := `

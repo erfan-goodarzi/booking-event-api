@@ -7,8 +7,8 @@ import (
 )
 
 type BookingStore interface {
-	CreateBooking(ticketId string, t *models.Booking) (*models.Booking, error)
-	UpdateBookingStatus(id string, t *models.Booking) (*models.Booking, error)
+	Create(ticketId string, t *models.Booking) (*models.Booking, error)
+	UpdateStatus(id string, t *models.Booking) (*models.Booking, error)
 }
 
 type PostgresBookingStore struct {
@@ -19,7 +19,7 @@ func NewPostgresBookingStore(db *sql.DB) *PostgresBookingStore {
 	return &PostgresBookingStore{db: db}
 }
 
-func (pg *PostgresBookingStore) CreateBooking(ticketId string, b *models.Booking) (*models.Booking, error) {
+func (pg *PostgresBookingStore) Create(ticketId string, b *models.Booking) (*models.Booking, error) {
 	query := `INSERT INTO bookings(user_id, ticket_id, status)
 	VALUES ($1, $2, $3)
 	RETURNING id, created_at, updated_at
@@ -38,7 +38,7 @@ func (pg *PostgresBookingStore) CreateBooking(ticketId string, b *models.Booking
 	return b, nil
 }
 
-func (pg *PostgresBookingStore) UpdateBookingStatus(id string, b *models.Booking) (*models.Booking, error) {
+func (pg *PostgresBookingStore) UpdateStatus(id string, b *models.Booking) (*models.Booking, error) {
 	query := `UPDATE bookings
 	SET status = $1
 	WHERE id = $2

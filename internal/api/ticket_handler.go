@@ -61,7 +61,7 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 		return
 	}
 
-	eventOwner, err := h.eventStore.GetEventOwner(id)
+	eventOwner, err := h.eventStore.GetOwner(id)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		h.response.RespondError(c, http.StatusUnprocessableEntity, "EVENT_NOT_EXIST")
@@ -88,7 +88,7 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 		return
 	}
 
-	ticket, err = h.ticketStore.CreateTicket(id, ticket)
+	ticket, err = h.ticketStore.Create(id, ticket)
 
 	if err != nil {
 		h.response.RespondError(c, http.StatusInternalServerError, "FAILED_TO_REGISTER")

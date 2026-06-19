@@ -15,7 +15,7 @@ type UserStore interface {
 	ValidateCredential(u *models.User) error
 	SaveRefreshToken(userID string, token string, expiresAt time.Time) error
 	DeleteRefreshToken(token string) error
-	GetUserByRefreshToken(token string) (*models.User, error)
+	GetByRefreshToken(token string) (*models.User, error)
 }
 
 type PostgresUserStore struct {
@@ -108,7 +108,7 @@ func (pg *PostgresUserStore) DeleteRefreshToken(token string) error {
 	return err
 }
 
-func (pg *PostgresUserStore) GetUserByRefreshToken(token string) (*models.User, error) {
+func (pg *PostgresUserStore) GetByRefreshToken(token string) (*models.User, error) {
 	query := `
 	SELECT u.id, u.email, u.username
 	FROM users u

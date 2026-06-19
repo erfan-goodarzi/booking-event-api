@@ -7,7 +7,7 @@ import (
 )
 
 type TicketStore interface {
-	CreateTicket(id string, t *models.Ticket) (*models.Ticket, error)
+	Create(id string, t *models.Ticket) (*models.Ticket, error)
 }
 
 type PostgresTicketStore struct {
@@ -18,7 +18,7 @@ func NewPostgresTicketStore(db *sql.DB) *PostgresTicketStore {
 	return &PostgresTicketStore{db: db}
 }
 
-func (pg *PostgresTicketStore) CreateTicket(id string, t *models.Ticket) (*models.Ticket, error) {
+func (pg *PostgresTicketStore) Create(id string, t *models.Ticket) (*models.Ticket, error) {
 	query := `INSERT INTO tickets(user_id, event_id, type, price, quantity)
 	VALUES ($1, $2, $3, $4, $5)
 	RETURNING id, created_at, updated_at
