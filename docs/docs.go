@@ -378,6 +378,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.ErrorNotFound"
                         }
                     },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/models.BookingErrConflict"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -695,6 +701,19 @@ const docTemplate = `{
                 "userId": {
                     "type": "string",
                     "example": "u12345"
+                }
+            }
+        },
+        "models.BookingErrConflict": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "User already registered for the ticket"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Conflict"
                 }
             }
         },

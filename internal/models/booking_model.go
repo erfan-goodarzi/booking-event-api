@@ -27,3 +27,8 @@ type BookingResponse struct {
 	Data    Booking `json:"data"`
 	Message string  `json:"message"`
 }
+
+type BookingErrConflict struct {
+	Error   string `json:"error" example:"User already registered for the ticket"`
+	Message string `json:"message" example:"Conflict"`
+}

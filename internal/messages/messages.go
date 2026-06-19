@@ -10,5 +10,7 @@ const (
 	Logout              = "user logged out successfully"
 	CreateTicketSuccess = "Ticket created successfully"
 	RegisterSuccess     = "Ticket booked successfully"
-	RegisterStatusSuccess     = "registration status updated successfully"
+	RegisterStatusSuccess     = "Registration status updated successfully"
+	ErrAlreadyRegistered = "User already registered for the ticket"
+	ErrSoldOut = "Ticket sold out"
 )

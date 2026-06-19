@@ -2,9 +2,11 @@ package store
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/erfan-goodarzi/booking-event-api/internal/db"
 	"github.com/erfan-goodarzi/booking-event-api/internal/models"
+	"github.com/jackc/pgconn"
 )
 
 type BookingStore interface {
@@ -21,17 +23,51 @@ func NewPostgresBookingStore(db db.DB) *PostgresBookingStore {
 }
 
 func (pg *PostgresBookingStore) Create(ticketId string, b *models.Booking) (*models.Booking, error) {
+	tx, err := pg.db.Begin()
+
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	var remaining int
+
+	err = tx.QueryRow(`
+    UPDATE tickets
+    SET quantity = quantity - 1
+    WHERE id = $1
+      AND quantity > 0
+    RETURNING quantity
+`, ticketId).Scan(&remaining)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("TICKET_SOLD_OUT")
+		}
+		return nil, err
+	}
+
 	query := `INSERT INTO bookings(user_id, ticket_id, status)
 	VALUES ($1, $2, $3)
 	RETURNING id, created_at, updated_at
 	`
 
-	err := pg.db.QueryRow(query, b.UserId, ticketId, b.Status).Scan(
+	err = tx.QueryRow(query, b.UserId, ticketId, b.Status).Scan(
 		&b.ID,
 		&b.CreatedAt,
 		&b.UpdatedAt,
 	)
 
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			if pgErr.Code == "23505" {
+				return nil, errors.New("USER_ALREADY_REGISTERED_FOR_TICKET")
+			}
+		}
+		return nil, err
+	}
+
+	err = tx.Commit()
 	if err != nil {
 		return nil, err
 	}

@@ -39,6 +39,15 @@ definitions:
         example: u12345
         type: string
     type: object
+  models.BookingErrConflict:
+    properties:
+      error:
+        example: User already registered for the ticket
+        type: string
+      message:
+        example: Conflict
+        type: string
+    type: object
   models.BookingResponse:
     properties:
       data:
@@ -720,6 +729,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.ErrorNotFound'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.BookingErrConflict'
         "500":
           description: Internal Server Error
           schema:

@@ -38,6 +38,7 @@ func NewBookingHandler(bookingStore store.BookingStore, eventStore store.EventSt
 // @Success 201 {object} models.BookingResponse
 // @Failure 404 {object} models.ErrorNotFound
 // @Failure 500 {object} models.ErrorInternalServer
+// @Failure 409 {object} models.BookingErrConflict
 // @Router /events/tickets/{id}/register [post]
 func (h *BookingHandler) RegisterEvent(c *gin.Context) {
 	id, err := apiUtils.ParseID(c)
@@ -56,11 +57,18 @@ func (h *BookingHandler) RegisterEvent(c *gin.Context) {
 	booking, err = h.bookingStore.Create(id, booking)
 
 	if err != nil {
-		h.response.RespondError(c, http.StatusInternalServerError, "FAILED_TO_REGISTER")
+		switch err.Error() {
+		case "USER_ALREADY_REGISTERED_FOR_TICKET":
+			h.response.RespondError(c, http.StatusConflict, messages.ErrAlreadyRegistered)
+		case "TICKET_SOLD_OUT":
+			h.response.RespondError(c, http.StatusConflict, messages.ErrSoldOut)
+		default:
+			h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		}
 		return
 	}
 
-	h.response.RespondSuccess(c, http.StatusCreated, messages.CreateTicketSuccess, booking)
+	h.response.RespondSuccess(c, http.StatusCreated, messages.RegisterSuccess, booking)
 }
 
 // UpdateRegistrationStatus godoc

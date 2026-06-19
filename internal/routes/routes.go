@@ -19,8 +19,6 @@ func RegisterRoutes(app *api.Application) *gin.Engine {
 	{
 		events.GET("", app.Handlers.Event.GetEvents)
 		events.GET("/:id", app.Handlers.Event.GetEvent)
-		events.POST("/tickets/:id/register", app.Handlers.Booking.RegisterEvent)
-		events.PUT("/tickets/register/:id/status", app.Handlers.Booking.UpdateRegistrationStatus)
 	}
 
 	protectedEvents := protectedRoute.Group("/events")
@@ -29,6 +27,8 @@ func RegisterRoutes(app *api.Application) *gin.Engine {
 		protectedEvents.POST("/:id", app.Handlers.Event.DeleteEvent)
 		protectedEvents.PUT("/:id", app.Handlers.Event.UpdateEvent)
 		protectedEvents.POST("/:id/tickets", app.Handlers.Ticket.CreateTicket)
+		protectedEvents.POST("/tickets/:id/register", app.Handlers.Booking.RegisterEvent)
+		protectedEvents.PUT("/tickets/register/:id/status", app.Handlers.Booking.UpdateRegistrationStatus)
 	}
 
 	// Auth
