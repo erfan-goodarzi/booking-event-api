@@ -1,8 +1,7 @@
 package store
 
 import (
-	"database/sql"
-
+	"github.com/erfan-goodarzi/booking-event-api/internal/db"
 	"github.com/erfan-goodarzi/booking-event-api/internal/models"
 )
 
@@ -11,10 +10,10 @@ type TicketStore interface {
 }
 
 type PostgresTicketStore struct {
-	db *sql.DB
+	db db.DB
 }
 
-func NewPostgresTicketStore(db *sql.DB) *PostgresTicketStore {
+func NewPostgresTicketStore(db db.DB) *PostgresTicketStore {
 	return &PostgresTicketStore{db: db}
 }
 

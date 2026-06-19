@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/erfan-goodarzi/booking-event-api/internal/db"
 	"github.com/erfan-goodarzi/booking-event-api/internal/models"
 	"github.com/erfan-goodarzi/booking-event-api/pkg/apiUtils"
 	"github.com/jackc/pgconn"
@@ -19,10 +20,10 @@ type UserStore interface {
 }
 
 type PostgresUserStore struct {
-	db *sql.DB
+	db db.DB
 }
 
-func NewPostgresUserStore(db *sql.DB) *PostgresUserStore {
+func NewPostgresUserStore(db db.DB) *PostgresUserStore {
 	return &PostgresUserStore{db: db}
 }
 

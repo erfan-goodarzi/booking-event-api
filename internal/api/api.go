@@ -1,13 +1,11 @@
-package app
+package api
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/erfan-goodarzi/booking-event-api/internal/api"
+	"github.com/erfan-goodarzi/booking-event-api/internal/config"
 	"github.com/erfan-goodarzi/booking-event-api/internal/db"
 	"github.com/erfan-goodarzi/booking-event-api/internal/store"
 	"github.com/erfan-goodarzi/booking-event-api/migrations"
@@ -15,26 +13,25 @@ import (
 )
 
 type Handler struct {
-	Event   *api.EventHandler
-	Ticket  *api.TicketHandler
-	User    *api.UserHandler
-	Booking *api.BookingHandler
+	Event   *EventHandler
+	Ticket  *TicketHandler
+	User    *UserHandler
+	Booking *BookingHandler
 }
 
 type Application struct {
 	Logger   *log.Logger
 	Handlers *Handler
-	DB       *sql.DB
+	DB       db.DB
 }
 
 func NewApplication() (*Application, error) {
-	dbSrc := fmt.Sprintf(
-		"host=localhost user=%s password=%s dbname=%s port=5432 sslmode=disable",
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("POSTGRES_DB"),
-	)
-	pgDB, err := db.ConnectDB(dbSrc)
+	cfg := config.Load()
+	dsn := cfg.DB.DSN()
+
+	dbConfig := db.DatabaseConfig{Driver: "pgx", DSN: dsn}
+
+	pgDB, err := db.ConnectDB(dbConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -45,17 +42,17 @@ func NewApplication() (*Application, error) {
 	}
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
-	apiResponse := &api.APIResponse{}
+	apiResponse := &APIResponse{}
 
 	eventStore := store.NewPostgresEventStore(pgDB)
 	userStore := store.NewPostgresUserStore(pgDB)
 	ticketStore := store.NewPostgresTicketStore(pgDB)
 	bookingStore := store.NewPostgresBookingStore(pgDB)
 
-	eventHandler := api.NewEventHandler(eventStore, logger, apiResponse)
-	userHandler := api.NewUserHandler(userStore, logger, apiResponse)
-	ticketHandler := api.NewTicketHandler(ticketStore, eventStore, logger, apiResponse)
-	bookingHandler := api.NewBookingHandler(bookingStore, eventStore, logger, apiResponse)
+	eventHandler := NewEventHandler(eventStore, logger, apiResponse)
+	userHandler := NewUserHandler(userStore, logger, apiResponse)
+	ticketHandler := NewTicketHandler(ticketStore, eventStore, logger, apiResponse)
+	bookingHandler := NewBookingHandler(bookingStore, eventStore, logger, apiResponse)
 
 	handlers := &Handler{
 		Event:   eventHandler,

@@ -3,6 +3,7 @@ package store
 import (
 	"database/sql"
 
+	"github.com/erfan-goodarzi/booking-event-api/internal/db"
 	"github.com/erfan-goodarzi/booking-event-api/internal/models"
 )
 
@@ -12,10 +13,10 @@ type BookingStore interface {
 }
 
 type PostgresBookingStore struct {
-	db *sql.DB
+	db db.DB
 }
 
-func NewPostgresBookingStore(db *sql.DB) *PostgresBookingStore {
+func NewPostgresBookingStore(db db.DB) *PostgresBookingStore {
 	return &PostgresBookingStore{db: db}
 }
 

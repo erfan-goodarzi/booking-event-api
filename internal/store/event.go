@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/erfan-goodarzi/booking-event-api/internal/db"
 	"github.com/erfan-goodarzi/booking-event-api/internal/models"
 )
 
@@ -18,10 +19,10 @@ type EventStore interface {
 }
 
 type PostgresEventStore struct {
-	db *sql.DB
+	db db.DB
 }
 
-func NewPostgresEventStore(db *sql.DB) *PostgresEventStore {
+func NewPostgresEventStore(db db.DB) *PostgresEventStore {
 	return &PostgresEventStore{db: db}
 }
 
@@ -329,7 +330,7 @@ func (pg *PostgresEventStore) Delete(id string) error {
 	query := `DELETE FROM events WHERE id = $1`
 
 	stmt, err := pg.db.Prepare(query)
-
+	
 	if err != nil {
 		return err
 	}

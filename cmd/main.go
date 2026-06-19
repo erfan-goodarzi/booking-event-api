@@ -7,9 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/erfan-goodarzi/booking-event-api/internal/app"
+	"github.com/erfan-goodarzi/booking-event-api/internal/api"
 	"github.com/erfan-goodarzi/booking-event-api/internal/routes"
-	"github.com/joho/godotenv"
 )
 
 // @title           Booking Event API
@@ -25,12 +24,7 @@ func main() {
 	flag.IntVar(&port, "port", 8080, "server port")
 	flag.Parse()
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	app, err := app.NewApplication()
+	app, err := api.NewApplication()
 	if err != nil {
 		panic(err)
 	}

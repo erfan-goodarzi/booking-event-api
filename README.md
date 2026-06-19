@@ -16,16 +16,23 @@ A small project offering a streamlined event booking API complete with user auth
 - Gin Web Framework
 - PostgreSQL
 - Swagger docs via swaggo
-- dotenv for environment configuration
+- YAML configuration
 
 ## Setup
 
-1. Create a `.env` file with PostgreSQL credentials:
+1. Create a `config.yaml` file in the project root with your PostgreSQL and app settings:
 
-```env
-POSTGRES_USER=your_db_user
-POSTGRES_PASSWORD=your_db_password
-POSTGRES_DB=your_db_name
+```yaml
+app:
+  env: development
+  port: "8080"
+
+db:
+  host: localhost
+  port: "5432"
+  user: your_db_user
+  password: your_db_password
+  name: your_db_name
 ```
 
 2. Make sure PostgreSQL is running and the database exists.

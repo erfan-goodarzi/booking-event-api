@@ -35,3 +35,4 @@ go.work.sum
 *.sqlite
 *.sqlite3
 tmp/
+config.yaml
