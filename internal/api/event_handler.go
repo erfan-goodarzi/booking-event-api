@@ -29,7 +29,7 @@ func NewEventHandler(eventStore store.EventStore, logger *log.Logger, response *
 	}
 }
 
-// GetEvents godoc
+// GetAll godoc
 // @Summary List events
 // @Description Get all events
 // @Tags Events
@@ -41,7 +41,7 @@ func NewEventHandler(eventStore store.EventStore, logger *log.Logger, response *
 // @Success 200 {object} models.EventListResponse
 // @Failure 500 {object} models.ErrorInternalServer
 // @Router /events [get]
-func (h *EventHandler) GetEvents(c *gin.Context) {
+func (h *EventHandler) GetAll(c *gin.Context) {
 	filter := models.EventFilter{
 		Search:   c.Query("search"),
 		Location: c.Query("location"),
@@ -67,7 +67,7 @@ func (h *EventHandler) GetEvents(c *gin.Context) {
 	h.response.RespondRetrievedSuccess(c, http.StatusOK, events)
 }
 
-// GetEvent godoc
+// GetById godoc
 // @Summary Get event by ID
 // @Description Get an event by its ID
 // @Tags Events
@@ -77,7 +77,7 @@ func (h *EventHandler) GetEvents(c *gin.Context) {
 // @Failure 404 {object} models.ErrorNotFound
 // @Failure 500 {object} models.ErrorInternalServer
 // @Router /events/{id} [get]
-func (h *EventHandler) GetEvent(c *gin.Context) {
+func (h *EventHandler) GetById(c *gin.Context) {
 	id, err := apiUtils.ParseID(c)
 
 	if err != nil {
@@ -95,7 +95,7 @@ func (h *EventHandler) GetEvent(c *gin.Context) {
 	h.response.RespondRetrievedSuccess(c, http.StatusOK, event)
 }
 
-// CreateEvent godoc
+// Create godoc
 // @Summary Create an event
 // @Description Create a new event (authenticated)
 // @Tags Events
@@ -108,7 +108,7 @@ func (h *EventHandler) GetEvent(c *gin.Context) {
 // @Failure 422 {object} models.ErrorBadRequest
 // @Failure 500 {object} models.ErrorInternalServer
 // @Router /events [post]
-func (h *EventHandler) CreateEvent(c *gin.Context) {
+func (h *EventHandler) Create(c *gin.Context) {
 	var payload models.CreateEventRequest
 	err := c.ShouldBindJSON(&payload)
 
@@ -142,7 +142,7 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 	h.response.RespondSuccess(c, http.StatusCreated, messages.CreateEventSuccess, createdEvent)
 }
 
-// UpdateEvent godoc
+// Update godoc
 // @Summary Update an event
 // @Description Update an existing event (authenticated, owner only)
 // @Tags Events
@@ -157,7 +157,7 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 // @Failure 404 {object} models.ErrorNotFound
 // @Failure 422 {object} models.ErrorBadRequest
 // @Router /events/{id} [put]
-func (h *EventHandler) UpdateEvent(c *gin.Context) {
+func (h *EventHandler) Update(c *gin.Context) {
 	id, err := apiUtils.ParseID(c)
 	currentUserId := c.GetString("userId")
 
@@ -218,7 +218,7 @@ func (h *EventHandler) UpdateEvent(c *gin.Context) {
 	h.response.RespondSuccess(c, http.StatusOK, messages.UpdateEventSuccess, updatedEvent)
 }
 
-// DeleteEvent godoc
+// Delete godoc
 // @Summary Delete an event
 // @Description Delete an event by ID (authenticated, owner only)
 // @Tags Events
@@ -230,7 +230,7 @@ func (h *EventHandler) UpdateEvent(c *gin.Context) {
 // @Failure 403 {object} models.ErrorForbidden
 // @Failure 422 {object} models.ErrorBadRequest
 // @Router /events/{id} [delete]
-func (h *EventHandler) DeleteEvent(c *gin.Context) {
+func (h *EventHandler) Delete(c *gin.Context) {
 	id, err := apiUtils.ParseID(c)
 	currentUserId := c.GetString("userId")
 

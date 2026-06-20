@@ -30,7 +30,7 @@ func NewTicketHandler(ticketStore store.TicketStore, eventStore store.EventStore
 	}
 }
 
-// CreateTicket godoc
+// Create godoc
 // @Summary Create a ticket
 // @Description Create a new ticket (authenticated)
 // @Tags Events
@@ -44,7 +44,7 @@ func NewTicketHandler(ticketStore store.TicketStore, eventStore store.EventStore
 // @Failure 404 {object} models.ErrorNotFound
 // @Failure 500 {object} models.ErrorInternalServer
 // @Router /events/{id}/tickets [post]
-func (h *TicketHandler) CreateTicket(c *gin.Context) {
+func (h *TicketHandler) Create(c *gin.Context) {
 	var payload models.CreateTicketRequest
 	id, err := apiUtils.ParseID(c)
 	currentUserId := c.GetString("userId")
@@ -78,7 +78,7 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 		Quantity: payload.Quantity,
 		Price:    payload.Price,
 		Type:     payload.Type,
-		UserId:   c.GetString("userId"),
+		UserId:   currentUserId,
 	}
 
 	err = validation.Validate.Struct(payload)

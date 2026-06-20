@@ -80,6 +80,18 @@ definitions:
     - location
     - title
     type: object
+  models.CreatePlaylistRequest:
+    properties:
+      color:
+        example: red
+        type: string
+      name:
+        example: listen later
+        type: string
+    required:
+    - color
+    - name
+    type: object
   models.CreateTicketRequest:
     properties:
       price:
@@ -139,7 +151,7 @@ definitions:
   models.ErrorNotFound:
     properties:
       error:
-        example: EVENT_NOT_FOUND
+        example: NOT_FOUND
         type: string
       message:
         example: Not Found
@@ -295,6 +307,64 @@ definitions:
         example: Board Meeting
         maxLength: 50
         minLength: 3
+        type: string
+    type: object
+  models.PatchPlaylistRequest:
+    properties:
+      color:
+        example: red
+        type: string
+      name:
+        example: listen later
+        type: string
+    type: object
+  models.Playlist:
+    properties:
+      color:
+        example: red
+        type: string
+      created_at:
+        example: "2026-06-07T15:04:05Z"
+        format: date-time
+        type: string
+      events:
+        items:
+          $ref: '#/definitions/models.Event'
+        type: array
+      id:
+        example: e2f1c3a8-7d4b-11ec-90d6-0242ac120003
+        type: string
+      name:
+        example: listen later
+        type: string
+      updated_at:
+        example: "2026-06-07T15:04:05Z"
+        format: date-time
+        type: string
+      userId:
+        example: u12345
+        type: string
+    type: object
+  models.PlaylistDeleteSuccess:
+    properties:
+      message:
+        example: Playlist deleted successfully
+        type: string
+    type: object
+  models.PlaylistListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Playlist'
+        type: array
+      message:
+        type: string
+    type: object
+  models.PlaylistResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Playlist'
+      message:
         type: string
     type: object
   models.Ticket:
@@ -792,6 +862,161 @@ paths:
       - BearerAuth: []
       tags:
       - Health
+  /playlist:
+    get:
+      description: Get all Playlists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PlaylistListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorInternalServer'
+      summary: Playlists
+      tags:
+      - Playlist
+    post:
+      consumes:
+      - application/json
+      description: Create a new Playlist (authenticated)
+      parameters:
+      - description: Playlist payload
+        in: body
+        name: playlist
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreatePlaylistRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.PlaylistResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorNotFound'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorInternalServer'
+      security:
+      - BearerAuth: []
+      summary: Create a Playlist
+      tags:
+      - Playlist
+  /playlist/{id}:
+    delete:
+      description: Delete an playlist by ID (authenticated, owner only)
+      parameters:
+      - description: Playlist ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PlaylistDeleteSuccess'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorUnauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorForbidden'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - BearerAuth: []
+      summary: Delete an playlist
+      tags:
+      - Playlist
+    get:
+      description: Get an playlist by its ID
+      parameters:
+      - description: Playlist ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PlaylistResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorNotFound'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorInternalServer'
+      summary: Get playlist by ID
+      tags:
+      - Playlist
+    put:
+      consumes:
+      - application/json
+      description: Update an existing playlist (authenticated, owner only)
+      parameters:
+      - description: Playlist ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Patch payload
+        in: body
+        name: playlist
+        required: true
+        schema:
+          $ref: '#/definitions/models.PatchPlaylistRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Playlist'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorUnauthorized'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorForbidden'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorNotFound'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - BearerAuth: []
+      summary: Update an playlist
+      tags:
+      - Playlist
 securityDefinitions:
   BearerAuth:
     in: header

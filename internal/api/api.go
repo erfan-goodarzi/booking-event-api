@@ -13,10 +13,11 @@ import (
 )
 
 type Handler struct {
-	Event   *EventHandler
-	Ticket  *TicketHandler
-	User    *UserHandler
-	Booking *BookingHandler
+	Event    *EventHandler
+	Ticket   *TicketHandler
+	User     *UserHandler
+	Booking  *BookingHandler
+	Playlist *PlaylistHandler
 }
 
 type Application struct {
@@ -48,17 +49,20 @@ func NewApplication() (*Application, error) {
 	userStore := store.NewPostgresUserStore(pgDB)
 	ticketStore := store.NewPostgresTicketStore(pgDB)
 	bookingStore := store.NewPostgresBookingStore(pgDB)
+	playlistStore := store.NewPostgresPlaylistStore(pgDB)
 
 	eventHandler := NewEventHandler(eventStore, logger, apiResponse)
 	userHandler := NewUserHandler(userStore, logger, apiResponse)
 	ticketHandler := NewTicketHandler(ticketStore, eventStore, logger, apiResponse)
 	bookingHandler := NewBookingHandler(bookingStore, eventStore, logger, apiResponse)
+	playlistHandler := NewPlaylistHandler(playlistStore, logger, apiResponse)
 
 	handlers := &Handler{
-		Event:   eventHandler,
-		User:    userHandler,
-		Ticket:  ticketHandler,
-		Booking: bookingHandler,
+		Event:    eventHandler,
+		User:     userHandler,
+		Ticket:   ticketHandler,
+		Booking:  bookingHandler,
+		Playlist: playlistHandler,
 	}
 
 	app := &Application{

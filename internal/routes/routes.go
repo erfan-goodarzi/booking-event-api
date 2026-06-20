@@ -17,18 +17,28 @@ func RegisterRoutes(app *api.Application) *gin.Engine {
 	// EVENTS
 	events := r.Group("/events")
 	{
-		events.GET("", app.Handlers.Event.GetEvents)
-		events.GET("/:id", app.Handlers.Event.GetEvent)
+		events.GET("", app.Handlers.Event.GetAll)
+		events.GET("/:id", app.Handlers.Event.GetById)
 	}
 
 	protectedEvents := protectedRoute.Group("/events")
 	{
-		protectedEvents.POST("", app.Handlers.Event.CreateEvent)
-		protectedEvents.POST("/:id", app.Handlers.Event.DeleteEvent)
-		protectedEvents.PUT("/:id", app.Handlers.Event.UpdateEvent)
-		protectedEvents.POST("/:id/tickets", app.Handlers.Ticket.CreateTicket)
+		protectedEvents.POST("", app.Handlers.Event.Create)
+		protectedEvents.POST("/:id", app.Handlers.Event.Delete)
+		protectedEvents.PUT("/:id", app.Handlers.Event.Update)
+		protectedEvents.POST("/:id/tickets", app.Handlers.Ticket.Create)
 		protectedEvents.POST("/tickets/:id/register", app.Handlers.Booking.RegisterEvent)
 		protectedEvents.PUT("/tickets/register/:id/status", app.Handlers.Booking.UpdateRegistrationStatus)
+	}
+
+	// Playlist
+	playlist := protectedRoute.Group("/playlist")
+	{
+		playlist.POST("", app.Handlers.Playlist.Create)
+		playlist.GET("", app.Handlers.Playlist.GetAll)
+		playlist.GET("/:id", app.Handlers.Playlist.GetById)
+		playlist.PUT("/:id", app.Handlers.Playlist.Update)
+		playlist.DELETE("/:id", app.Handlers.Playlist.Delete)
 	}
 
 	// Auth

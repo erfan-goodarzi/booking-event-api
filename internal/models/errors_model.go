@@ -7,7 +7,7 @@ type ErrorBadRequest struct {
 
 type ErrorNotFound struct {
 	Message string `json:"message" example:"Not Found"`
-	Error   string `json:"error" example:"EVENT_NOT_FOUND"`
+	Error   string `json:"error" example:"NOT_FOUND"`
 }
 
 type ErrorInternalServer struct {
