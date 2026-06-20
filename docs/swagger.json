@@ -878,6 +878,63 @@
                     }
                 }
             }
+        },
+        "/playlist/{playlistId}/events/{eventId}": {
+            "post": {
+                "description": "Add an event to playlist",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Playlist"
+                ],
+                "summary": "Add an event to playlist",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Playlist ID",
+                        "name": "playlistId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.PlaylistEventSuccess"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorNotFound"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/models.BookingErrConflict"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorInternalServer"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1381,6 +1438,15 @@
                 "message": {
                     "type": "string",
                     "example": "Playlist deleted successfully"
+                }
+            }
+        },
+        "models.PlaylistEventSuccess": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Event added to playlist successfully"
                 }
             }
         },

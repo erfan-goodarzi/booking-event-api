@@ -35,3 +35,7 @@ type PlaylistListResponse struct {
 	Data    []Playlist `json:"data"`
 	Message string  `json:"message"`
 }
+
+type PlaylistEventSuccess struct {
+	Message string `json:"message" example:"Event added to playlist successfully"`
+}

@@ -39,6 +39,7 @@ func RegisterRoutes(app *api.Application) *gin.Engine {
 		playlist.GET("/:id", app.Handlers.Playlist.GetById)
 		playlist.PUT("/:id", app.Handlers.Playlist.Update)
 		playlist.DELETE("/:id", app.Handlers.Playlist.Delete)
+		playlist.POST("/:playlistId/events/:eventId", app.Handlers.Playlist.AddEvent)
 	}
 
 	// Auth

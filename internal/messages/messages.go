@@ -16,4 +16,6 @@ const (
 	CreatePlaylistSuccess  = "Playlist created successfully"
 	UpdatePlaylistSuccess  = "Playlist updated successfully"
 	DeletesPlaylistSuccess = "Playlist deleted successfully"
+	ErrAlreadyPlaylist     = "Event already in the playlist"
+	PlaylistEventSuccess        = "Event added to playlist successfully"
 )

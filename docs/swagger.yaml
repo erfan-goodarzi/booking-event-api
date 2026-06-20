@@ -351,6 +351,12 @@ definitions:
         example: Playlist deleted successfully
         type: string
     type: object
+  models.PlaylistEventSuccess:
+    properties:
+      message:
+        example: Event added to playlist successfully
+        type: string
+    type: object
   models.PlaylistListResponse:
     properties:
       data:
@@ -1015,6 +1021,44 @@ paths:
       security:
       - BearerAuth: []
       summary: Update an playlist
+      tags:
+      - Playlist
+  /playlist/{playlistId}/events/{eventId}:
+    post:
+      consumes:
+      - application/json
+      description: Add an event to playlist
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Playlist ID
+        in: path
+        name: playlistId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.PlaylistEventSuccess'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorNotFound'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.BookingErrConflict'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorInternalServer'
+      summary: Add an event to playlist
       tags:
       - Playlist
 securityDefinitions:

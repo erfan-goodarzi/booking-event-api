@@ -239,3 +239,40 @@ func (h *PlaylistHandler) Delete(c *gin.Context) {
 
 	h.response.RespondSuccess(c, http.StatusOK, messages.DeletesPlaylistSuccess)
 }
+
+// AddEventToPlaylist godoc
+// @Summary Add an event to playlist
+// @Description Add an event to playlist
+// @Tags Playlist
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param playlistId path string true "Playlist ID"
+// @Success 201 {object} models.PlaylistEventSuccess
+// @Failure 404 {object} models.ErrorNotFound
+// @Failure 500 {object} models.ErrorInternalServer
+// @Failure 409 {object} models.BookingErrConflict
+// @Router /playlist/{playlistId}/events/{eventId} [post]
+func (h *PlaylistHandler) AddEvent(c *gin.Context) {
+	eventId, err := apiUtils.ParsParam(c, "eventId")
+	playlistId, err := apiUtils.ParsParam(c, "playlistId")
+
+	if err != nil {
+		h.response.RespondError(c, http.StatusNotFound, "ID_NOT_FOUND")
+		return
+	}
+
+	err = h.playlistStore.AddEvent(playlistId, eventId)
+
+	if err != nil {
+		switch err.Error() {
+		case "EVENT_ALREADY_IN_PLAYLIST":
+			h.response.RespondError(c, http.StatusConflict, messages.ErrAlreadyPlaylist)
+		default:
+			h.response.RespondError(c, http.StatusInternalServerError, "UNKNOWN_ERROR")
+		}
+		return
+	}
+
+	h.response.RespondSuccess(c, http.StatusCreated, messages.PlaylistEventSuccess)
+}

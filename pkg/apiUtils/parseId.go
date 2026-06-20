@@ -15,3 +15,13 @@ func ParseID(c *gin.Context) (string, error) {
 
 	return idParams, nil
 }
+
+func ParsParam(c *gin.Context, name string) (string, error) {
+	param := c.Param(name)
+
+	if param == "" {
+		return "", errors.New("Invalid" + name)
+	}
+
+	return param, nil
+}

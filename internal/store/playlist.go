@@ -2,9 +2,11 @@ package store
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/erfan-goodarzi/booking-event-api/internal/db"
 	"github.com/erfan-goodarzi/booking-event-api/internal/models"
+	"github.com/jackc/pgconn"
 )
 
 type PlaylistStore interface {
@@ -13,7 +15,8 @@ type PlaylistStore interface {
 	Create(p *models.Playlist) (*models.Playlist, error)
 	Update(*models.Playlist) (*models.Playlist, error)
 	Delete(id string) error
-	GetOwner(playlistId string) (string, error)
+	AddEvent(playlistId string, eventId string) error
+	GetOwner(id string) (string, error)
 }
 
 type PostgresPlaylistStore struct {
@@ -200,6 +203,29 @@ func (pg *PostgresPlaylistStore) Delete(id string) error {
 
 	if rowsAffected == 0 {
 		return sql.ErrNoRows
+	}
+
+	return nil
+}
+
+func (pg *PostgresPlaylistStore) AddEvent(playlistID, eventID string) error {
+	var p models.Playlist
+
+	query := `
+	INSERT INTO playlist_events(playlist_id, event_id) 
+	VALUES ($1, $2) 
+	RETURNING created_at
+	`
+
+	err := pg.db.QueryRow(query, playlistID, eventID).Scan(&p.CreatedAt)
+
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			if pgErr.Code == "23505" {
+				return errors.New("EVENT_ALREADY_IN_PLAYLIST")
+			}
+		}
+		return err
 	}
 
 	return nil
