@@ -366,6 +366,12 @@ definitions:
       message:
         type: string
     type: object
+  models.PlaylistPublicStatus:
+    properties:
+      public:
+        example: true
+        type: boolean
+    type: object
   models.PlaylistResponse:
     properties:
       data:
@@ -1039,6 +1045,12 @@ paths:
         name: playlistId
         required: true
         type: string
+      - description: payload
+        in: body
+        name: playlist
+        required: true
+        schema:
+          $ref: '#/definitions/models.PlaylistPublicStatus'
       produces:
       - application/json
       responses:

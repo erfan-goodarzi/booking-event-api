@@ -248,6 +248,7 @@ func (h *PlaylistHandler) Delete(c *gin.Context) {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param playlistId path string true "Playlist ID"
+// @Param playlist body models.PlaylistPublicStatus true "payload"
 // @Success 201 {object} models.PlaylistEventSuccess
 // @Failure 404 {object} models.ErrorNotFound
 // @Failure 500 {object} models.ErrorInternalServer
@@ -262,7 +263,23 @@ func (h *PlaylistHandler) AddEvent(c *gin.Context) {
 		return
 	}
 
-	err = h.playlistStore.AddEvent(playlistId, eventId)
+	var publicStatus models.PlaylistPublicStatus
+
+	err = c.ShouldBindJSON(&publicStatus)
+
+	if err != nil {
+		h.response.RespondError(c, http.StatusUnprocessableEntity, "PAYLOAD_NOT_VALID")
+		return
+	}
+
+	err = validation.Validate.Struct(publicStatus)
+
+	if err != nil {
+		h.response.ValidationError(c, http.StatusUnprocessableEntity, "VALIDATION_FAILED", validation.FormatValidationErrors(err))
+		return
+	}
+
+	err = h.playlistStore.AddEvent(playlistId, eventId, publicStatus.Public)
 
 	if err != nil {
 		switch err.Error() {

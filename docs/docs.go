@@ -912,6 +912,15 @@ const docTemplate = `{
                         "name": "playlistId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "payload",
+                        "name": "playlist",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PlaylistPublicStatus"
+                        }
                     }
                 ],
                 "responses": {
@@ -1467,6 +1476,15 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "models.PlaylistPublicStatus": {
+            "type": "object",
+            "properties": {
+                "public": {
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },

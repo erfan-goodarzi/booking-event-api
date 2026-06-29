@@ -15,7 +15,7 @@ type PlaylistStore interface {
 	Create(p *models.Playlist) (*models.Playlist, error)
 	Update(*models.Playlist) (*models.Playlist, error)
 	Delete(id string) error
-	AddEvent(playlistId string, eventId string) error
+	AddEvent(playlistId string, eventId string, isPublic bool) error
 	GetOwner(id string) (string, error)
 }
 
@@ -208,16 +208,16 @@ func (pg *PostgresPlaylistStore) Delete(id string) error {
 	return nil
 }
 
-func (pg *PostgresPlaylistStore) AddEvent(playlistID, eventID string) error {
+func (pg *PostgresPlaylistStore) AddEvent(playlistID, eventID string, isPublic bool) error {
 	var p models.Playlist
 
 	query := `
-	INSERT INTO playlist_events(playlist_id, event_id) 
-	VALUES ($1, $2) 
+	INSERT INTO playlist_events(playlist_id, event_id, public) 
+	VALUES ($1, $2, $3) 
 	RETURNING created_at
 	`
 
-	err := pg.db.QueryRow(query, playlistID, eventID).Scan(&p.CreatedAt)
+	err := pg.db.QueryRow(query, playlistID, eventID, isPublic).Scan(&p.CreatedAt)
 
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok {

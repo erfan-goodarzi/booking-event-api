@@ -22,6 +22,10 @@ type PatchPlaylistRequest struct {
 	Color *string `json:"color" validate:"omitempty" example:"red"`
 }
 
+type PlaylistPublicStatus struct {
+	Public  bool `json:"public" validate:"boolean" example:"true"`
+}
+
 type PlaylistDeleteSuccess struct {
 	Message string `json:"message" example:"Playlist deleted successfully"`
 }
